@@ -28,7 +28,7 @@ const ORDINARY_HAZARD_SCHEDULE = [
 
 export const FirePipeSizer: React.FC = () => {
   const [method, setMethod] = useState<'sprinkler' | 'flow'>('sprinkler');
-  const [hazardClass, setHazardClass] = useState<'light' | 'ordinary'>('ordinary');
+  const [hazardClass, setHazardClass] = useState<'light' | 'ordinary'>('light');
   const [inputVal, setInputVal] = useState('8');
   const [isModalOpen, setIsModalOpen] = useState(false);
   
