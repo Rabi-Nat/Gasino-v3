@@ -148,17 +148,17 @@ const App: React.FC = () => {
 
   if (!hasSelectedSection) {
     return (
-      <div className="h-screen w-full bg-[#030712] flex flex-col md:flex-row overflow-hidden relative font-sans select-none">
+      <div className="h-screen w-full bg-slate-50 flex flex-col md:flex-row overflow-hidden relative font-sans select-none">
         {/* GAS SECTION */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => handleSectionSelect('gas')}
-          className="flex-1 group relative cursor-pointer overflow-hidden border-b md:border-b-0 md:border-l border-white/5"
+          className="flex-1 group relative cursor-pointer overflow-hidden border-b md:border-b-0 md:border-l border-slate-200/50 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-700"
         >
           {/* Background Image / Pattern */}
-          <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/20 transition-colors duration-700" />
-          <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 bg-[size:32px_32px] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)]" />
+          <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-700" />
+          <div className="absolute inset-0 opacity-[0.015] group-hover:opacity-[0.035] transition-opacity duration-700 bg-[size:32px_32px] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)]" />
 
           <div className="relative h-full flex flex-col items-center justify-center p-8 text-center">
             <motion.div 
@@ -172,20 +172,20 @@ const App: React.FC = () => {
                 ease: "easeInOut" 
               }}
               whileHover={{ scale: 1.1, rotate: 10 }}
-              className="mb-8 p-6 rounded-[28px] bg-blue-600 shadow-[0_0_50px_-12px_rgba(37,99,235,0.5)]"
+              className="mb-8 p-6 rounded-[28px] bg-blue-600 shadow-[0_0_50px_-12px_rgba(37,99,235,0.3)]"
             >
               <Flame className="w-10 h-10 text-white" />
             </motion.div>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter">طراحی گاز</h2>
-            <p className="text-blue-200/40 font-bold text-sm md:text-lg max-w-xs mb-10 leading-relaxed uppercase tracking-widest">
+            <h2 className="text-5xl md:text-7xl font-black text-slate-800 mb-4 tracking-tighter">سیستم گازرسانی</h2>
+            <p className="text-blue-600/60 font-bold text-sm md:text-lg max-w-xs mb-10 leading-relaxed uppercase tracking-widest">
               Natural Gas Engineering System
             </p>
-            <div className="px-8 py-3.5 rounded-full border border-white/10 text-white/40 group-hover:border-blue-500 group-hover:text-white font-black text-[10px] uppercase tracking-[0.3em] transition-all">
+            <div className="px-8 py-3.5 rounded-full border border-slate-200 text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] transition-all bg-white shadow-sm">
               Start Project
             </div>
           </div>
 
-          <div className="absolute top-1/2 left-0 -translate-y-1/2 -ml-20 text-[200px] font-black text-white/[0.02] rotate-90 pointer-events-none ltr">
+          <div className="absolute top-1/2 left-0 -translate-y-1/2 -ml-20 text-[200px] font-black text-blue-600/[0.015] rotate-90 pointer-events-none ltr">
             METHANE
           </div>
         </motion.div>
@@ -196,10 +196,10 @@ const App: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
           onClick={() => handleSectionSelect('fire')}
-          className="flex-1 group relative cursor-pointer overflow-hidden"
+          className="flex-1 group relative cursor-pointer overflow-hidden hover:shadow-2xl hover:shadow-rose-500/5 transition-all duration-700"
         >
-          <div className="absolute inset-0 bg-rose-600/5 group-hover:bg-rose-600/20 transition-colors duration-700" />
-          <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 bg-[size:32px_32px] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)]" />
+          <div className="absolute inset-0 bg-rose-500/5 group-hover:bg-rose-500/10 transition-colors duration-700" />
+          <div className="absolute inset-0 opacity-[0.015] group-hover:opacity-[0.035] transition-opacity duration-700 bg-[size:32px_32px] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)]" />
 
           <div className="relative h-full flex flex-col items-center justify-center p-8 text-center">
             <motion.div 
@@ -214,27 +214,27 @@ const App: React.FC = () => {
                 delay: 0.5
               }}
               whileHover={{ scale: 1.1, rotate: -10 }}
-              className="mb-8 p-6 rounded-[28px] bg-rose-600 shadow-[0_0_50px_-12px_rgba(225,29,72,0.5)]"
+              className="mb-8 p-6 rounded-[28px] bg-rose-600 shadow-[0_0_50px_-12px_rgba(225,29,72,0.3)]"
             >
               <FireExtinguisher className="w-10 h-10 text-white" />
             </motion.div>
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter">آتش نشانی</h2>
-            <p className="text-rose-200/40 font-bold text-sm md:text-lg max-w-xs mb-10 leading-relaxed uppercase tracking-widest">
+            <h2 className="text-5xl md:text-7xl font-black text-slate-800 mb-4 tracking-tighter">آتش نشانی</h2>
+            <p className="text-rose-600/60 font-bold text-sm md:text-lg max-w-xs mb-10 leading-relaxed uppercase tracking-widest">
               Hydraulic Fire Protection
             </p>
-            <div className="px-8 py-3.5 rounded-full border border-white/10 text-white/40 group-hover:border-rose-500 group-hover:text-white font-black text-[10px] uppercase tracking-[0.3em] transition-all">
+            <div className="px-8 py-3.5 rounded-full border border-slate-200 text-slate-400 group-hover:border-rose-500 group-hover:text-rose-600 font-black text-[10px] uppercase tracking-[0.3em] transition-all bg-white shadow-sm">
               Safety Panel
             </div>
           </div>
 
-          <div className="absolute top-1/2 right-0 -translate-y-1/2 -mr-20 text-[200px] font-black text-white/[0.02] -rotate-90 pointer-events-none ltr">
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 -mr-20 text-[200px] font-black text-rose-600/[0.015] -rotate-90 pointer-events-none ltr">
             HYDRAULIC
           </div>
         </motion.div>
 
         {/* Center Logo Floating */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:block z-50 pointer-events-none">
-           <div className="bg-white p-5 rounded-[32px] shadow-2xl">
+           <div className="bg-white p-5 rounded-[32px] shadow-2xl border border-slate-100/55">
               <div className="w-4 h-4 bg-slate-900 rounded-full" />
            </div>
         </div>
@@ -256,7 +256,7 @@ const App: React.FC = () => {
             <div>
               <h1 className="font-black text-xl leading-tight">Gasino</h1>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
-                {activeSection === 'gas' ? 'طراحی گاز' : 'مهندسی ضد حریق'}
+                {activeSection === 'gas' ? 'سیستم گازرسانی' : 'مهندسی ضد حریق'}
               </p>
             </div>
           </div>
@@ -272,7 +272,7 @@ const App: React.FC = () => {
             onClick={() => { setActiveSection('gas'); setActiveTab('pipe'); }}
             className={`flex-1 py-2.5 text-[11px] font-black z-10 transition-colors ${activeSection === 'gas' ? 'text-white' : 'text-slate-400'}`}
           >
-            طراحی گاز
+            سیستم گازرسانی
           </button>
           <button 
             onClick={() => { setActiveSection('fire'); setActiveTab('water'); }}
@@ -321,7 +321,7 @@ const App: React.FC = () => {
           className="bg-white/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-2"
         >
           <ArrowLeftRight className="w-3 h-3" />
-          {activeSection === 'gas' ? 'بخش آتش‌نشانی' : 'بخش طراحی گاز'}
+          {activeSection === 'gas' ? 'بخش آتش‌نشانی' : 'بخش سیستم گازرسانی'}
         </button>
       </header>
 
