@@ -281,28 +281,101 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
     setTestCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Amperes load calculation for equipment
+  // Amperes load calculation for equipment according to modern COPs & Iranian conditions (Mabahs 13, 14, 19)
   const getAmpereEstimation = () => {
     const tons = coolingTons || 3;
-    const electricalKwCooling = tons * 1.35; // Approx ratio including fans & compressors
+    let kwFactor = 1.15; // default
+    let powerFactor = 0.85;
+    let mustBeThreePhase = tons > 4.5;
+    let sourceLabel = '';
+
+    if (coolingSource === 'evaporative') {
+      kwFactor = 0.22; // No compressor, only fan/pump (very low power draw)
+      powerFactor = 0.80;
+      mustBeThreePhase = false;
+      sourceLabel = 'کولر آبی (موتور و پمپ)';
+    } else if (coolingSource === 'split') {
+      kwFactor = 1.05; // COP ~ 3.3 (High efficiency split)
+      powerFactor = 0.88;
+      mustBeThreePhase = tons > 5.0;
+      sourceLabel = 'اسپلیت دیواری (کولر گازی)';
+    } else if (coolingSource === 'duct_split') {
+      kwFactor = 1.20; // COP ~ 2.9 (Ducted split with static pressure fan)
+      powerFactor = 0.85;
+      mustBeThreePhase = tons > 4.5;
+      sourceLabel = 'داکت اسپلیت';
+    } else if (coolingSource === 'chiller') {
+      kwFactor = 1.25; // Scroll chiller + water circulation pumps + terminal FCUs
+      powerFactor = 0.85;
+      mustBeThreePhase = tons > 2.5; // Central chillers are standard 3-phase
+      sourceLabel = 'چیلر تراکمی و پمپ‌ها';
+    } else if (coolingSource === 'vrf') {
+      kwFactor = 0.95; // COP ~ 3.7 (Inverter VRF system)
+      powerFactor = 0.90;
+      mustBeThreePhase = tons > 4.0;
+      sourceLabel = 'سیستم مرکزی VRF';
+    }
+
+    const electricalKwCooling = tons * kwFactor;
     const voltageSinglePhase = 220;
     const voltageThreePhase = 380;
-    const powerFactor = 0.85;
 
     const singlePhaseAmp = Math.round((electricalKwCooling * 1000) / (voltageSinglePhase * powerFactor));
     const threePhaseAmp = Math.round((electricalKwCooling * 1000) / (Math.sqrt(3) * voltageThreePhase * powerFactor));
 
-    const wireSizeSingle = singlePhaseAmp <= 16 ? '2.5 mm²' : singlePhaseAmp <= 25 ? '4 mm²' : '6 mm²';
-    const wireSizeThree = '2.5 mm² (کابل مجهز به ارت تئوریک)';
+    // Wire & Circuit Breaker Sizing for Single Phase (Phase, Neutral, Earth)
+    let wireSizeSingle = '۲.۵ × ۳ mm²';
+    let fuseSingleCooling = 'C16';
+    if (singlePhaseAmp <= 16) {
+      wireSizeSingle = '۲.۵ × ۳ mm²';
+      fuseSingleCooling = 'C16';
+    } else if (singlePhaseAmp <= 25) {
+      wireSizeSingle = '۴ × ۳ mm²';
+      fuseSingleCooling = 'C25';
+    } else if (singlePhaseAmp <= 32) {
+      wireSizeSingle = '۶ × ۳ mm²';
+      fuseSingleCooling = 'C32';
+    } else if (singlePhaseAmp <= 50) {
+      wireSizeSingle = '۱۰ × ۳ mm²';
+      fuseSingleCooling = 'C50';
+    } else {
+      wireSizeSingle = '۱۶ × ۳ mm²';
+      fuseSingleCooling = 'C63';
+    }
+
+    // Wire & Circuit Breaker Sizing for Three Phase (3 Phases, Neutral, Earth)
+    let wireSizeThree = '۱.۵ × ۵ mm²';
+    let fuseThreeCooling = '3P C10';
+    if (threePhaseAmp <= 10) {
+      wireSizeThree = '۱.۵ × ۵ mm²';
+      fuseThreeCooling = '3P C10';
+    } else if (threePhaseAmp <= 16) {
+      wireSizeThree = '۲.5 × ۵ mm²';
+      fuseThreeCooling = '3P C16';
+    } else if (threePhaseAmp <= 25) {
+      wireSizeThree = '۴ × ۵ mm²';
+      fuseThreeCooling = '3P C25';
+    } else if (threePhaseAmp <= 32) {
+      wireSizeThree = '۶ × ۵ mm²';
+      fuseThreeCooling = '3P C32';
+    } else if (threePhaseAmp <= 50) {
+      wireSizeThree = '۱۰ × ۵ mm²';
+      fuseThreeCooling = '3P C50';
+    } else {
+      wireSizeThree = '۱۶ × ۵ mm²';
+      fuseThreeCooling = '3P C63';
+    }
 
     return {
-      kw: electricalKwCooling.toFixed(1),
+      kw: electricalKwCooling.toFixed(2),
       singlePhaseAmp,
       threePhaseAmp,
       wireSizeSingle,
       wireSizeThree,
-      fuseSingleCooling: singlePhaseAmp <= 16 ? 'C16' : singlePhaseAmp <= 25 ? 'C25' : 'C32',
-      mustBeThreePhase: tons > 4.5
+      fuseSingleCooling,
+      fuseThreeCooling,
+      mustBeThreePhase,
+      sourceLabel
     };
   };
 
@@ -925,13 +998,21 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
 
                     {/* Wire size recommendation */}
                     <div className="grid grid-cols-2 gap-3 pt-1">
-                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-150-dark">
-                        <span className="text-[9px] text-slate-400 font-bold block mb-1">کابل تک‌فاز پیشنهادی:</span>
-                        <p className="text-xs font-black text-slate-800 font-mono" dir="ltr">{electricalData.wireSizeSingle}</p>
+                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-200">
+                        <span className="text-[9px] text-slate-400 font-bold block mb-1">
+                          {electricalData.mustBeThreePhase ? 'کابل سه‌فاز پیشنهادی:' : 'کابل تک‌فاز پیشنهادی:'}
+                        </span>
+                        <p className="text-xs font-black text-slate-800 font-mono text-center" dir="ltr">
+                          {electricalData.mustBeThreePhase ? electricalData.wireSizeThree : electricalData.wireSizeSingle}
+                        </p>
                       </div>
-                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-155">
-                        <span className="text-[9px] text-slate-400 font-bold block mb-1">کد کلید مینیاتوری تیپ C:</span>
-                        <p className="text-xs font-black text-slate-800 font-mono text-center" dir="ltr">{electricalData.fuseSingleCooling}</p>
+                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-200">
+                        <span className="text-[9px] text-slate-400 font-bold block mb-1">
+                          {electricalData.mustBeThreePhase ? 'کلید مینیاتوری سه‌فاز:' : 'کلید مینیاتوری تک‌فاز:'}
+                        </span>
+                        <p className="text-xs font-black text-slate-800 font-mono text-center" dir="ltr">
+                          {electricalData.mustBeThreePhase ? electricalData.fuseThreeCooling : electricalData.fuseSingleCooling}
+                        </p>
                       </div>
                     </div>
 
