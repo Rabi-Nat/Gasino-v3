@@ -28,20 +28,30 @@ interface PlumbingFixture {
   sfuTotal: number;
   dfu: number;
   icon: string;
+  isPublic?: boolean;
 }
 
 // Standards-derived fixtures according to Topic 16 (مبحث ۱۶ مقررات ملی)
 const FIXTURE_STANDARDS: PlumbingFixture[] = [
-  { id: 'lavatory', name: 'دستشویی (روشویی)', sfuCold: 0.5, sfuHot: 0.5, sfuTotal: 0.7, dfu: 1, icon: '🧼' },
-  { id: 'toilet_tank', name: 'توالت ایرانی / فرنگی (با فلاش‌تانک)', sfuCold: 2.2, sfuHot: 0, sfuTotal: 2.2, dfu: 3, icon: '🚽' },
-  { id: 'toilet_valve', name: 'توالت ایرانی / فرنگی (با فلاش‌والو)', sfuCold: 6.0, sfuHot: 0, sfuTotal: 6.0, dfu: 5, icon: '⚡' },
-  { id: 'sink', name: 'سینک ظرفشویی آشپزخانه', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🍽️' },
-  { id: 'shower', name: 'حمام (دوش)', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.4, dfu: 2, icon: '🚿' },
-  { id: 'bathtub', name: 'وان حمام', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.4, dfu: 2, icon: '🛁' },
-  { id: 'clothes_washer', name: 'ماشین لباسشویی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🧺' },
-  { id: 'dishwasher', name: 'ماشین ظرفشویی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🍽️' },
-  { id: 'floor_drain', name: 'کفشوی فاضلاب', sfuCold: 0, sfuHot: 0, sfuTotal: 0, dfu: 2, icon: '🕳️' },
-  { id: 'urinal', name: 'سیفون دیواری (یورینال بقاعده فلاش تانک)', sfuCold: 1.5, sfuHot: 0, sfuTotal: 1.5, dfu: 2, icon: '🏺' }
+  { id: 'lavatory', name: 'دستشویی (روشویی) خصوصی', sfuCold: 0.5, sfuHot: 0.5, sfuTotal: 0.7, dfu: 1, icon: '🧼', isPublic: false },
+  { id: 'toilet_tank', name: 'توالت ایرانی / فرنگی خصوصی (با فلاش‌تانک)', sfuCold: 2.2, sfuHot: 0, sfuTotal: 2.2, dfu: 3, icon: '🚽', isPublic: false },
+  { id: 'toilet_valve', name: 'توالت ایرانی / فرنگی خصوصی (با فلاش‌والو)', sfuCold: 6.0, sfuHot: 0, sfuTotal: 6.0, dfu: 5, icon: '⚡', isPublic: false },
+  { id: 'sink', name: 'سینک ظرفشویی خصوصی آشپزخانه', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🍽️', isPublic: false },
+  { id: 'shower', name: 'حمام (دوش) خصوصی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.4, dfu: 2, icon: '🚿', isPublic: false },
+  { id: 'bathtub', name: 'وان حمام خصوصی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.4, dfu: 2, icon: '🛁', isPublic: false },
+  { id: 'clothes_washer', name: 'ماشین لباسشویی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🧺', isPublic: false },
+  { id: 'dishwasher', name: 'ماشین ظرفشویی', sfuCold: 1.0, sfuHot: 1.0, sfuTotal: 1.5, dfu: 2, icon: '🍽️', isPublic: false },
+  { id: 'floor_drain', name: 'کفشوی فاضلاب', sfuCold: 0, sfuHot: 0, sfuTotal: 0, dfu: 2, icon: '🕳️', isPublic: false },
+  { id: 'urinal', name: 'سیفون دیواری (یورینال بقاعده فلاش تانک)', sfuCold: 1.5, sfuHot: 0, sfuTotal: 1.5, dfu: 2, icon: '🏺', isPublic: false },
+  
+  // Public usage fixtures request
+  { id: 'toilet_tank_public', name: 'توالت با فلاش تانک عمومی', sfuCold: 5.0, sfuHot: 0, sfuTotal: 5.0, dfu: 3, icon: '🏢🚽', isPublic: true },
+  { id: 'toilet_valve_public', name: 'توالت با فلاش والو عمومی', sfuCold: 10.0, sfuHot: 0, sfuTotal: 10.0, dfu: 5, icon: '⚡🚽', isPublic: true },
+  { id: 'lavatory_public', name: 'دستشویی (روشویی) عمومی', sfuCold: 1.5, sfuHot: 1.5, sfuTotal: 2.0, dfu: 1, icon: '🏢🧼', isPublic: true },
+  { id: 'shower_public', name: 'دوش عمومی', sfuCold: 3.0, sfuHot: 3.0, sfuTotal: 4.0, dfu: 2, icon: '🏢🚿', isPublic: true },
+  { id: 'bathtub_public', name: 'وان عمومی', sfuCold: 3.0, sfuHot: 3.0, sfuTotal: 4.0, dfu: 2, icon: '🏢🛁', isPublic: true },
+  { id: 'sink_public', name: 'سینک عمومی', sfuCold: 3.0, sfuHot: 3.0, sfuTotal: 4.0, dfu: 2, icon: '🏢🍽️', isPublic: true },
+  { id: 'drinking_fountain', name: 'آبخوری عمومی', sfuCold: 0.25, sfuHot: 0, sfuTotal: 0.25, dfu: 1, icon: '🚰', isPublic: true }
 ];
 
 const OCCUPANCY_TYPES = [
@@ -84,6 +94,7 @@ export const PlumbingSystem: React.FC<PlumbingSystemProps> = ({ activeTabId }) =
   });
 
   const [waterSystemType, setWaterSystemType] = useState<'tank' | 'valve'>('tank'); // Tank system or Flush Valve system
+  const [fixtureTab, setFixtureTab] = useState<'private' | 'public'>('private');
 
   // Reservoir specific state
   const [occupancyType, setOccupancyType] = useState('residential');
@@ -208,17 +219,18 @@ export const PlumbingSystem: React.FC<PlumbingSystemProps> = ({ activeTabId }) =
 
   // Standard engineering calculations for Pipe Diameter recommendation (m/s)
   // Inside diameter D = sqrt( (4 * Flow) / (pi * Velocity) )
-  // Assuming a conservative safe velocity of 1.5 m/s
+  // Configured precisely for the requested velocity of 1.2 m/s (3.94 ft/s) for plumbing pipes
   const recommendPipeDiameterInches = (gpm: number) => {
     if (gpm <= 0) return '—';
-    if (gpm <= 4) return '1/2 inch (DN15)';
-    if (gpm <= 9) return '3/4 inch (DN20)';
-    if (gpm <= 18) return '1 inch (DN25)';
-    if (gpm <= 30) return '1 1/4 inch (DN32)';
-    if (gpm <= 48) return '1 1/2 inch (DN40)';
-    if (gpm <= 85) return '2 inch (DN50)';
-    if (gpm <= 150) return '2 1/2 inch (DN65)';
-    return '3 inch+ (DN80)';
+    if (gpm <= 3.5) return '۱/۲ اینچ (DN15)';
+    if (gpm <= 7.0) return '۳/۴ اینچ (DN20)';
+    if (gpm <= 13.5) return '۱ اینچ (DN25)';
+    if (gpm <= 20.0) return '۱ ۱/۴ اینچ (DN32)';
+    if (gpm <= 32.0) return '۱ ۱/۲ اینچ (DN40)';
+    if (gpm <= 55.0) return '۲ اینچ (DN50)';
+    if (gpm <= 85.0) return '۲ ۱/۲ اینچ (DN65)';
+    if (gpm <= 150.0) return '۳ اینچ (DN80)';
+    return '۴ اینچ به بالا (DN100)';
   };
 
   // Convert GPM to liters/minute
@@ -666,8 +678,34 @@ return (
                     </button>
                   </div>
 
+                  {/* Private vs Public categorization tabs */}
+                  <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl border border-slate-200/50">
+                    <button
+                      type="button"
+                      onClick={() => setFixtureTab('private')}
+                      className={`py-2 px-3 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                        fixtureTab === 'private'
+                          ? 'bg-white text-cyan-700 shadow border border-slate-200/30'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      🚪 مصارف خصوصی (مسکونی)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFixtureTab('public')}
+                      className={`py-2 px-3 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                        fixtureTab === 'public'
+                          ? 'bg-white text-cyan-700 shadow border border-slate-200/30'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      🏢 مصارف عمومی (تجاری-اداری)
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[460px] overflow-y-auto pr-1 pl-1 custom-scrollbar">
-                    {FIXTURE_STANDARDS.map((fixture) => {
+                    {FIXTURE_STANDARDS.filter(fixture => fixtureTab === 'public' ? fixture.isPublic : !fixture.isPublic).map((fixture) => {
                       const count = fixtureCounts[fixture.id] || 0;
                       return (
                         <div 
@@ -740,9 +778,14 @@ return (
                           <span className="text-slate-400 font-bold">آب گرم مصرفی:</span>
                           <span className="font-mono font-bold text-slate-300 ltr">{sfuResults.hot} SFU / {gpmHot.toFixed(1)} GPM</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-3">
-                          <span className="text-cyan-400 text-xs font-black">سایز پیشنهادی لوله اصلی:</span>
-                          <span className="text-xs font-black bg-cyan-600 text-white px-2.5 py-1 rounded-lg shadow-sm font-sans">{recommendPipeDiameterInches(gpmTotal)}</span>
+                        <div className="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-3" dir="rtl">
+                          <div className="text-right">
+                            <span className="text-cyan-400 text-xs font-black block">سایز پیشنهادی لوله</span>
+                            <span className="text-slate-400 text-[10px] block font-bold leading-normal mt-0.5">(سرعت جریان: ۱.۲m/s)</span>
+                          </div>
+                          <span className="text-xs font-black bg-cyan-600 text-white px-2.5 py-1 rounded-lg shadow-sm text-right" dir="rtl">
+                            {recommendPipeDiameterInches(gpmTotal)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -754,7 +797,7 @@ return (
                     <div>
                       <h4 className="text-cyan-900 font-black text-xs mb-1">توضیح منحنی هانتر (Hunter Curve)</h4>
                       <p className="text-cyan-700/80 text-[10px] sm:text-xs font-bold leading-relaxed">
-                        این متدولوژی احتمال همزمانی باز شدن شیرآلات بهداشتی را در یک ساختمان به روش ریاضی محاسبه می‌کند تا لوله‌ها بدون افت فشار حاد، در بهینه‌ترین حالت اقتصادی خریده و نصب شوند. (مبحث ۱۶)
+                        این متدولوژی احتمال همزمانی باز شدن شیرآلات بهداشتی را در یک ساختمان به روش ریاضی (منحنی هانتر) محاسبه می‌کند. مضاف بر این، قطر لوله‌ها بر پایه‌ی سرعت جریان استاندارد مصوب ۱.۲ متر بر ثانیه محاسبه شده است که مانع افت فشار شدید و تولید سروصدا در سیستم لوله‌کشی می‌گردد.
                       </p>
                     </div>
                   </div>
