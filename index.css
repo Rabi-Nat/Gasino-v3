@@ -41,6 +41,11 @@
     transform: scale(1.02);
   }
 
+  .sidebar-btn.active-plumbing {
+    @apply bg-cyan-600 text-white shadow-lg shadow-cyan-100;
+    transform: scale(1.02);
+  }
+
   .nav-btn.active {
     @apply text-blue-600;
   }

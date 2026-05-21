@@ -26,9 +26,12 @@ export const ContactUs: React.FC = () => {
                <MessageSquare className="w-10 h-10" />
             </div>
             <h3 className="text-3xl font-black text-slate-800 mb-6">ارتباط با ما</h3>
-            <p className="text-slate-500 font-medium leading-relaxed text-lg">
+            <p className="text-slate-400 font-medium leading-relaxed text-sm mb-4">
                این پلتفرم با هدف ساده‌سازی محاسبات مهندسی طراحی شده است. 
                هرگونه ایده یا گزارش خطا، گامی است به سوی کمال این ابزار.
+            </p>
+            <p className="text-slate-500 font-bold text-xs leading-relaxed opacity-90">
+               جهت هرگونه پیشنهادات، نظرات، تبلیغات و اسپانسری با ما در ارتباط باشید.
             </p>
          </div>
       </div>

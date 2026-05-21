@@ -17,7 +17,10 @@ import {
   Wrench,
   Scaling,
   Ruler,
-  Home
+  Home,
+  Sliders,
+  CloudRain,
+  ClipboardCheck
 } from 'lucide-react';
 import { PipeCalculator } from './components/PipeCalculator';
 import { Ventilation } from './components/Ventilation';
@@ -34,9 +37,11 @@ import { WaterSystem } from './components/WaterSystem';
 import { FirePipeSizer } from './components/FirePipeSizer';
 import { ExtinguisherCalc } from './components/ExtinguisherCalc';
 import { FirePumpHead } from './components/FirePumpHead';
+import { PlumbingSystem } from './components/PlumbingSystem';
+import { MechanicalHvac } from './components/MechanicalHvac';
 
-type SectionId = 'gas' | 'fire';
-type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump';
+type SectionId = 'gas' | 'fire' | 'plumbing' | 'hvac';
+type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump' | 'plumbing' | 'plumbing_reservoir' | 'plumbing_rainwater' | 'plumbing_test' | 'hvac_load' | 'hvac_duct' | 'hvac_equip' | 'hvac_test';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionId>('gas');
@@ -68,30 +73,98 @@ const App: React.FC = () => {
     { id: 'contact' as TabId, label: 'تماس با ما', icon: MessageSquare, component: ContactUs },
   ];
 
-  const tabs = activeSection === 'gas' ? gasTabs : fireTabs;
+  const plumbingTabs = [
+    { id: 'plumbing' as TabId, label: 'آبرسانی و فاضلاب', icon: Cylinder, component: PlumbingSystem },
+    { id: 'plumbing_reservoir' as TabId, label: 'منبع ذخیره مصرفی', icon: Sliders, component: PlumbingSystem },
+    { id: 'plumbing_rainwater' as TabId, label: 'آب باران و ناودان', icon: CloudRain, component: PlumbingSystem },
+    { id: 'plumbing_test' as TabId, label: 'تست سیستم‌ها', icon: ClipboardCheck, component: PlumbingSystem },
+    { id: 'contact' as TabId, label: 'تماس با ما', icon: MessageSquare, component: ContactUs },
+  ];
+
+  const hvacTabs = [
+    { id: 'hvac_load' as TabId, label: 'بارهای برودتی حرارتی', icon: Sliders, component: MechanicalHvac },
+    { id: 'hvac_duct' as TabId, label: 'سایزینگ کانال و لوله', icon: Ruler, component: MechanicalHvac },
+    { id: 'hvac_equip' as TabId, label: 'انتخاب دستگاه و جریان برقی', icon: Wind, component: MechanicalHvac },
+    { id: 'hvac_test' as TabId, label: 'تست‌ها و گواهی مبحث ۱۴', icon: ClipboardCheck, component: MechanicalHvac },
+    { id: 'contact' as TabId, label: 'تماس با ما', icon: MessageSquare, component: ContactUs },
+  ];
+
+  const tabs = activeSection === 'gas' 
+    ? gasTabs 
+    : activeSection === 'fire' 
+    ? fireTabs 
+    : activeSection === 'plumbing' 
+    ? plumbingTabs 
+    : hvacTabs;
 
   const handleSectionSelect = (section: SectionId) => {
     setActiveSection(section);
-    setActiveTab(section === 'gas' ? 'pipe' : 'water');
+    setActiveTab(
+      section === 'gas' 
+        ? 'pipe' 
+        : section === 'fire' 
+        ? 'water' 
+        : section === 'plumbing' 
+        ? 'plumbing' 
+        : 'hvac_load'
+    );
     setHasSelectedSection(true);
   };
 
   const toggleSection = () => {
-    const next = activeSection === 'gas' ? 'fire' : 'gas';
+    const next = activeSection === 'gas' 
+      ? 'fire' 
+      : activeSection === 'fire' 
+      ? 'plumbing' 
+      : activeSection === 'plumbing' 
+      ? 'hvac' 
+      : 'gas';
     setActiveSection(next);
-    setActiveTab(next === 'gas' ? 'pipe' : 'water');
+    setActiveTab(
+      next === 'gas' 
+        ? 'pipe' 
+        : next === 'fire' 
+        ? 'water' 
+        : next === 'plumbing' 
+        ? 'plumbing' 
+        : 'hvac_load'
+    );
   };
 
   const resetToLanding = () => setHasSelectedSection(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollPosRef = useRef<number>(0);
   const [isInteracting, setIsInteracting] = useState(false);
   const interactionTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Synchronize scrollPosRef with manual user scrolls
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollRef.current && isInteracting) {
+        scrollPosRef.current = scrollRef.current.scrollLeft;
+      }
+    };
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (el) {
+        el.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [isInteracting]);
 
   // Infinite Auto-scroll logic
   useEffect(() => {
     let animationFrame: number;
-    const scrollSpeed = 0.2; // Pixels per frame
+    const scrollSpeed = 0.1; // Pixels per frame
+
+    // Initialize with current scroll value
+    if (scrollRef.current) {
+      scrollPosRef.current = scrollRef.current.scrollLeft;
+    }
 
     const animate = () => {
       if (!scrollRef.current || isInteracting) {
@@ -100,14 +173,18 @@ const App: React.FC = () => {
       }
 
       const el = scrollRef.current;
-      el.scrollLeft -= scrollSpeed; // Scroll left-to-right (negative scrollLeft in RTL)
-
+      
+      // Update sub-pixel scroll accuracy reference
+      scrollPosRef.current -= scrollSpeed;
+      
       // Loop logic for RTL
       // In RTL, scrollLeft 0 is far right. Negative values move left.
       // We want to loop back when we've scrolled one full set.
-      if (Math.abs(el.scrollLeft) >= (el.scrollWidth / 2)) {
-        el.scrollLeft = 0;
+      if (Math.abs(scrollPosRef.current) >= (el.scrollWidth / 2)) {
+        scrollPosRef.current = 0;
       }
+      
+      el.scrollLeft = scrollPosRef.current;
 
       animationFrame = requestAnimationFrame(animate);
     };
@@ -188,6 +265,44 @@ const App: React.FC = () => {
         watermarkText: 'HYDRAULIC'
       },
       {
+        id: 'plumbing',
+        title: 'تاسیسات بهداشتی، آبرسانی و فاضلاب',
+        englishTitle: 'Water & Plumbing Systems',
+        icon: Cylinder,
+        colorClass: 'text-cyan-600',
+        bgClass: 'bg-gradient-to-r from-cyan-500/5 to-cyan-500/10 hover:from-cyan-500/10 hover:to-cyan-500/15',
+        borderClass: 'border-cyan-100 hover:border-cyan-300',
+        badge: 'مبحث ۱۶',
+        badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-200/50',
+        action: () => {
+          setActiveSection('plumbing');
+          setActiveTab('plumbing');
+          setHasSelectedSection(true);
+        },
+        description: 'محاسبات دبی خطوط آبرسانی بر اساس SFU، طراحی مخازن آب اضطراری، و سایزینگ شیب ثقلی کلکتورهای فاضلاب ساختمان.',
+        glowColor: 'rgba(6,182,212,0.06)',
+        watermarkText: 'HYDRO SYSTEM'
+      },
+      {
+        id: 'hvac',
+        title: 'تاسیسات مکانیکی و سرمایش گرمایش',
+        englishTitle: 'Mechanical HVAC Systems',
+        icon: Wind,
+        colorClass: 'text-amber-600',
+        bgClass: 'bg-gradient-to-r from-amber-500/5 to-amber-500/10 hover:from-amber-500/10 hover:to-amber-500/15',
+        borderClass: 'border-amber-100 hover:border-amber-300',
+        badge: 'مبحث ۱۴',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/50',
+        action: () => {
+          setActiveSection('hvac');
+          setActiveTab('hvac_load');
+          setHasSelectedSection(true);
+        },
+        description: 'محاسبه بارهای برودتی و حرارتی، سایزینگ کانال‌کشی هوا، چیلرها و فن‌کویل‌ها بر اساس دیتای سایکرومتریک شهرهای ایران.',
+        glowColor: 'rgba(245,158,11,0.06)',
+        watermarkText: 'METROPOLIS HVAC'
+      },
+      {
         id: 'store',
         title: 'فروشگاه تدارکات ملزومات',
         englishTitle: 'Engineering Hardware Store',
@@ -224,36 +339,6 @@ const App: React.FC = () => {
         description: 'طرح سوالات نظارت، استعلام نقشه‌ها و همکاری مستقیم با مهندسین.',
         glowColor: 'rgba(139,92,246,0.06)',
         watermarkText: 'CONSULT'
-      },
-      {
-        id: 'hvac_placeholder',
-        title: 'تاسیسات مکانیکی و سرمایش گرمایش',
-        englishTitle: 'Mechanical HVAC Systems',
-        icon: Wind,
-        colorClass: 'text-amber-500/60',
-        bgClass: 'bg-slate-50/50 cursor-not-allowed opacity-75',
-        borderClass: 'border-slate-200/40',
-        badge: 'بزودی',
-        badgeColor: 'bg-amber-50 text-amber-600 border-amber-200/50',
-        action: () => {},
-        description: 'محاسبه بارهای برودتی و حرارتی، سایزینگ کانال‌کشی هوا، چیلرها و فن‌کویل‌ها بر اساس دیتای سایکرومتریک شهرهای ایران.',
-        glowColor: 'rgba(245,158,11,0.02)',
-        watermarkText: 'COMING SOON HVAC'
-      },
-      {
-        id: 'plumbing_placeholder',
-        title: 'تاسیسات بهداشتی، آبرسانی و فاضلاب',
-        englishTitle: 'Water & Plumbing Systems',
-        icon: Cylinder,
-        colorClass: 'text-cyan-500/60',
-        bgClass: 'bg-slate-50/50 cursor-not-allowed opacity-75',
-        borderClass: 'border-slate-200/40',
-        badge: 'بزودی',
-        badgeColor: 'bg-cyan-50 text-cyan-600 border-cyan-200/50',
-        action: () => {},
-        description: 'محاسبات دبی خطوط آبرسانی، کلکتور فاضلاب ساختمان، و سایزینگ شیب لوله‌های ثقلی دفع آب‌های سطحی.',
-        glowColor: 'rgba(6,182,212,0.02)',
-        watermarkText: 'COMING SOON WATER'
       }
     ];
 
@@ -286,21 +371,91 @@ const App: React.FC = () => {
         <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-emerald-500/3 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Animated Brand Header */}
-        <div className="text-center mb-10 md:mb-12 relative z-10" dir="rtl">
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0, y: -15 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 140, damping: 14 }}
-            whileHover={{ scale: 1.08 }}
-            className="cursor-default relative inline-block px-10 py-4"
-          >
-            {/* Ambient colorful backdrop glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-emerald-500/10 to-rose-500/10 rounded-full blur-2xl filter opacity-75 scale-90 animate-pulse pointer-events-none" />
+        <div className="text-center mb-10 md:mb-12 relative z-10" dir="ltr">
+          <div className="relative inline-block px-10 py-4 cursor-default select-none">
+            {/* Ambient colorful backdrop glow (slowly breathing and rotating) */}
+            <motion.div 
+              animate={{ 
+                scale: [0.95, 1.1, 0.95],
+                opacity: [0.5, 0.8, 0.5],
+                rotate: [0, 180, 360]
+              }}
+              transition={{ 
+                duration: 12, 
+                repeat: Infinity, 
+                ease: "linear" 
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-emerald-500/10 to-rose-500/10 rounded-full blur-[45px] pointer-events-none" 
+            />
             
-            <h1 className="text-5xl md:text-7xl font-sans font-black tracking-tight bg-gradient-to-r from-blue-600 via-emerald-600 to-rose-600 bg-clip-text text-transparent filter drop-shadow-[0_2px_15px_rgba(37,99,235,0.08)] select-none">
-              Gasino
-            </h1>
-          </motion.div>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.08,
+                    delayChildren: 0.15
+                  }
+                }
+              }}
+              className="flex items-center justify-center gap-[3px] font-sans text-5xl md:text-7xl font-black tracking-tight"
+            >
+              {["G", "a", "s", "i", "n", "o"].map((letter, idx) => {
+                // Elegant transitioning gradient segments
+                const gradients = [
+                  "from-blue-600 to-blue-500",
+                  "from-blue-500 to-cyan-500",
+                  "from-cyan-550 to-emerald-500",
+                  "from-emerald-500 to-amber-500",
+                  "from-amber-500 to-rose-500",
+                  "from-rose-500 to-rose-600"
+                ];
+
+                return (
+                  <motion.span
+                    key={idx}
+                    variants={{
+                      hidden: { y: -35, opacity: 0, scale: 0.4 },
+                      visible: { 
+                        y: 0, 
+                        opacity: 1, 
+                        scale: 1,
+                        transition: { 
+                          type: "spring" as const,
+                          stiffness: 220,
+                          damping: 12
+                        }
+                      }
+                    }}
+                    whileHover={{ 
+                      y: -12, 
+                      scale: 1.15,
+                      rotate: idx % 2 === 0 ? 8 : -8,
+                      filter: "drop-shadow(0px 10px 20px rgba(37,99,235,0.15))",
+                      transition: { type: "spring" as const, stiffness: 300, damping: 10 }
+                    }}
+                    animate={{
+                      y: [0, -5, 0],
+                    }}
+                    transition={{
+                      y: {
+                        duration: 3.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: idx * 0.18
+                      }
+                    }}
+                    className={`inline-block bg-gradient-to-br ${gradients[idx]} bg-clip-text text-transparent cursor-pointer filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.01)]`}
+                  >
+                    {letter}
+                  </motion.span>
+                );
+              })}
+            </motion.div>
+          </div>
         </div>
 
         {/* Constrained Visually-focused Vertical Stack Menu list */}
@@ -390,35 +545,43 @@ const App: React.FC = () => {
       <aside className="hidden md:flex flex-col w-72 bg-white border-l border-slate-200 p-6 z-50 no-print">
         <div className="flex items-center justify-between mb-8 cursor-pointer group" onClick={resetToLanding}>
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-2xl shadow-lg transition-all group-hover:scale-110 ${activeSection === 'gas' ? 'bg-blue-600 shadow-blue-100' : 'bg-rose-600 shadow-rose-100'}`}>
+            <div className={`p-2.5 rounded-2xl shadow-lg transition-all group-hover:scale-110 ${activeSection === 'gas' ? 'bg-blue-600 shadow-blue-100' : activeSection === 'fire' ? 'bg-rose-600 shadow-rose-100' : activeSection === 'plumbing' ? 'bg-cyan-600 shadow-cyan-100' : 'bg-amber-600 shadow-amber-100'}`}>
               <Flame className="text-white w-6 h-6" />
             </div>
             <div>
               <h1 className="font-black text-xl leading-tight">Gasino</h1>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
-                {activeSection === 'gas' ? 'سیستم گازرسانی' : 'مهندسی ضد حریق'}
+                {activeSection === 'gas' ? 'سیستم گازرسانی' : activeSection === 'fire' ? 'مهندسی ضد حریق' : activeSection === 'plumbing' ? 'تاسیسات بهداشتی' : 'تهویه و گرمایش سرمایش'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="p-1 bg-slate-100 rounded-2xl flex mb-4 relative overflow-hidden">
-          <motion.div 
-            animate={{ x: activeSection === 'gas' ? '0%' : '-100%' }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className={`absolute top-1 bottom-1 right-1 w-[calc(50%-4px)] rounded-xl shadow-sm ${activeSection === 'gas' ? 'bg-blue-600' : 'bg-rose-600'}`}
-          />
+        {/* 4-Section Unified Switch */}
+        <div className="p-1 bg-slate-100 rounded-2xl flex flex-col gap-1.5 mb-4 border border-slate-200/50">
           <button 
             onClick={() => { setActiveSection('gas'); setActiveTab('pipe'); }}
-            className={`flex-1 py-2.5 text-[11px] font-black z-10 transition-colors ${activeSection === 'gas' ? 'text-white' : 'text-slate-400'}`}
+            className={`py-2 text-[10px] font-black rounded-xl transition-all ${activeSection === 'gas' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
           >
             سیستم گازرسانی
           </button>
           <button 
             onClick={() => { setActiveSection('fire'); setActiveTab('water'); }}
-            className={`flex-1 py-2.5 text-[11px] font-black z-10 transition-colors ${activeSection === 'fire' ? 'text-white' : 'text-slate-400'}`}
+            className={`py-2 text-[10px] font-black rounded-xl transition-all ${activeSection === 'fire' ? 'bg-rose-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
           >
-            آتش‌نشانی
+            آتش‌نشانی و ضد حریق
+          </button>
+          <button 
+            onClick={() => { setActiveSection('plumbing'); setActiveTab('plumbing'); }}
+            className={`py-2 text-[10px] font-black rounded-xl transition-all ${activeSection === 'plumbing' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            تاسیسات بهداشتی و فاضلاب
+          </button>
+          <button 
+            onClick={() => { setActiveSection('hvac'); setActiveTab('hvac_load'); }}
+            className={`py-2 text-[10px] font-black rounded-xl transition-all ${activeSection === 'hvac' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            تاسیسات مکانیکی و هوا
           </button>
         </div>
 
@@ -440,7 +603,7 @@ const App: React.FC = () => {
               className={`
                 sidebar-btn flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group
                 ${activeTab === tab.id 
-                  ? (activeSection === 'gas' ? 'active-gas' : 'active-fire') 
+                  ? (activeSection === 'gas' ? 'active-gas' : activeSection === 'fire' ? 'active-fire' : activeSection === 'plumbing' ? 'active-plumbing' : 'active-hvac') 
                   : 'text-slate-500 hover:bg-slate-50'}
               `}
             >
@@ -459,7 +622,7 @@ const App: React.FC = () => {
       </aside>
 
       {/* Mobile Header */}
-      <header className={`md:hidden h-16 border-b flex items-center justify-between px-4 sticky top-0 z-40 no-print transition-colors ${activeSection === 'gas' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-rose-600 border-rose-500 text-white'}`}>
+      <header className={`md:hidden h-16 border-b flex items-center justify-between px-4 sticky top-0 z-40 no-print transition-colors ${activeSection === 'gas' ? 'bg-blue-600 border-blue-500 text-white' : activeSection === 'fire' ? 'bg-rose-600 border-rose-500 text-white' : activeSection === 'plumbing' ? 'bg-cyan-600 border-cyan-500 text-white' : 'bg-amber-600 border-amber-500 text-white'}`}>
         <button 
           onClick={resetToLanding}
           className="bg-white/15 p-2.5 rounded-xl hover:bg-white/25 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
@@ -478,14 +641,20 @@ const App: React.FC = () => {
           className="bg-white/15 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shrink-0"
         >
           <ArrowLeftRight className="w-3.5 h-3.5" />
-          <span>{activeSection === 'gas' ? 'آتش‌نشانی' : 'گازرسانی'}</span>
+          <span>{activeSection === 'gas' ? 'آتش‌نشانی' : activeSection === 'fire' ? 'تاسیسات بهداشتی' : activeSection === 'plumbing' ? 'تاسیسات مکانیکی' : 'گازرسانی'}</span>
         </button>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden relative">
         <div className="h-full custom-scrollbar p-4 md:p-10 pb-28 md:pb-10 overflow-y-auto">
-          <ActiveComponent />
+          {ActiveComponent === PlumbingSystem ? (
+            <PlumbingSystem activeTabId={activeTab} />
+          ) : ActiveComponent === MechanicalHvac ? (
+            <MechanicalHvac activeTabId={activeTab} />
+          ) : (
+            <ActiveComponent />
+          )}
         </div>
 
         {/* Mobile Bottom Navigation */}
@@ -509,19 +678,28 @@ const App: React.FC = () => {
                 className={`
                   flex flex-col items-center justify-center min-w-[80px] py-1 transition-all duration-300 relative
                   ${activeTab === tab.id 
-                    ? (activeSection === 'gas' ? 'text-blue-600' : 'text-rose-600') 
+                    ? (activeSection === 'gas' ? 'text-blue-600' : activeSection === 'fire' ? 'text-rose-600' : activeSection === 'plumbing' ? 'text-cyan-600' : 'text-amber-600') 
                     : 'text-slate-400'}
                 `}
               >
                 {activeTab === tab.id && idx < tabs.length && (
                   <motion.div 
                     layoutId="activeTabMobile"
-                    className={`absolute top-[-8px] w-5 h-1 rounded-full ${activeSection === 'gas' ? 'bg-blue-600' : 'bg-rose-600'}`} 
+                    className={`absolute top-[-8px] w-5 h-1 rounded-full ${activeSection === 'gas' ? 'bg-blue-600' : activeSection === 'fire' ? 'bg-rose-600' : activeSection === 'plumbing' ? 'bg-cyan-600' : 'bg-amber-600'}`} 
                   />
                 )}
                 <tab.icon className="w-6 h-6 mb-1" />
                 <span className="text-[9px] font-bold">
-                  {tab.id === 'valve' ? 'شیر' : tab.label.split(' ')[0]}
+                  {tab.id === 'valve' ? 'شیر' : 
+                   tab.id === 'plumbing' ? 'آب/فاضلاب' :
+                   tab.id === 'plumbing_reservoir' ? 'ذخیره آب' :
+                   tab.id === 'plumbing_rainwater' ? 'آب باران' :
+                   tab.id === 'plumbing_test' ? 'تست' :
+                   tab.id === 'hvac_load' ? 'بار تهویه' :
+                   tab.id === 'hvac_duct' ? 'سایزبندی کانال' :
+                   tab.id === 'hvac_equip' ? 'تجهیزات/برق' :
+                   tab.id === 'hvac_test' ? 'آزمون‌ها' :
+                   tab.label.split(' ')[0]}
                 </span>
               </button>
             ))}
