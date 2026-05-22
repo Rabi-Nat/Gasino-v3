@@ -20,7 +20,8 @@ import {
   Home,
   Sliders,
   CloudRain,
-  ClipboardCheck
+  ClipboardCheck,
+  BookOpen
 } from 'lucide-react';
 import { PipeCalculator } from './components/PipeCalculator';
 import { Ventilation } from './components/Ventilation';
@@ -39,6 +40,7 @@ import { ExtinguisherCalc } from './components/ExtinguisherCalc';
 import { FirePumpHead } from './components/FirePumpHead';
 import { PlumbingSystem } from './components/PlumbingSystem';
 import { MechanicalHvac } from './components/MechanicalHvac';
+import { UserGuide } from './components/UserGuide';
 
 type SectionId = 'gas' | 'fire' | 'plumbing' | 'hvac';
 type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump' | 'plumbing' | 'plumbing_reservoir' | 'plumbing_rainwater' | 'plumbing_test' | 'hvac_load' | 'hvac_duct' | 'hvac_equip' | 'hvac_test';
@@ -48,6 +50,7 @@ const App: React.FC = () => {
   const [hasSelectedSection, setHasSelectedSection] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('pipe');
   const [isLoading, setIsLoading] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
@@ -224,6 +227,10 @@ const App: React.FC = () => {
     );
   }
 
+  if (showGuide) {
+    return <UserGuide onClose={() => setShowGuide(false)} />;
+  }
+
   if (!hasSelectedSection) {
     const mainMenuItems = [
       {
@@ -339,6 +346,23 @@ const App: React.FC = () => {
         description: 'طرح سوالات نظارت، استعلام نقشه‌ها و همکاری مستقیم با مهندسین.',
         glowColor: 'rgba(139,92,246,0.06)',
         watermarkText: 'CONSULT'
+      },
+      {
+        id: 'guide',
+        title: 'راهنمای استفاده و مستندات محاسباتی',
+        englishTitle: 'Technical User Guide',
+        icon: BookOpen,
+        colorClass: 'text-sky-600',
+        bgClass: 'bg-gradient-to-r from-sky-500/5 to-sky-500/10 hover:from-sky-500/10 hover:to-sky-500/15',
+        borderClass: 'border-sky-100 hover:border-sky-300',
+        badge: 'مستندات و فرمول‌ها',
+        badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/50',
+        action: () => {
+          setShowGuide(true);
+        },
+        description: 'راهنمای کاربری سیستم گاز، تاسیسات بهداشتی، مکانیکی و آتش‌نشانی همراه با روابط و فرمول‌های هر بخش.',
+        glowColor: 'rgba(14,165,233,0.06)',
+        watermarkText: 'USER MANUAL'
       }
     ];
 
@@ -588,11 +612,21 @@ const App: React.FC = () => {
         {/* Back to Home / Main Menu button */}
         <button 
           onClick={resetToLanding}
-          className="flex items-center justify-center gap-2 mb-4 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-2xl text-[11px] font-black transition-all cursor-pointer shadow-sm w-full"
+          className="flex items-center justify-center gap-2 mb-2 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-2xl text-[11px] font-black transition-all cursor-pointer shadow-sm w-full"
           dir="rtl"
         >
           <Home className="w-4 h-4 text-slate-500" />
           <span>بازگشت به منوی اصلی</span>
+        </button>
+
+        {/* Technical User Guide Button */}
+        <button 
+          onClick={() => setShowGuide(true)}
+          className="flex items-center justify-center gap-2 mb-4 px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200/80 rounded-2xl text-[11px] font-black transition-all cursor-pointer shadow-sm w-full"
+          dir="rtl"
+        >
+          <BookOpen className="w-4 h-4 text-blue-600" />
+          <span>کتابچه راهنما و مبانی محاسباتی</span>
         </button>
         
         <nav className="flex flex-col gap-1 overflow-y-auto custom-scrollbar pr-1">
