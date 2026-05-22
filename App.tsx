@@ -43,7 +43,7 @@ import { MechanicalHvac } from './components/MechanicalHvac';
 import { UserGuide } from './components/UserGuide';
 
 type SectionId = 'gas' | 'fire' | 'plumbing' | 'hvac';
-type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump' | 'plumbing' | 'plumbing_reservoir' | 'plumbing_rainwater' | 'plumbing_test' | 'hvac_load' | 'hvac_duct' | 'hvac_equip' | 'hvac_test';
+type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump' | 'plumbing' | 'plumbing_reservoir' | 'plumbing_rainwater' | 'plumbing_test' | 'hvac_load' | 'hvac_duct' | 'hvac_pipe' | 'hvac_test';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<SectionId>('gas');
@@ -86,8 +86,8 @@ const App: React.FC = () => {
 
   const hvacTabs = [
     { id: 'hvac_load' as TabId, label: 'بارهای برودتی حرارتی', icon: Sliders, component: MechanicalHvac },
-    { id: 'hvac_duct' as TabId, label: 'سایزینگ کانال و لوله', icon: Ruler, component: MechanicalHvac },
-    { id: 'hvac_equip' as TabId, label: 'انتخاب دستگاه و جریان برقی', icon: Wind, component: MechanicalHvac },
+    { id: 'hvac_duct' as TabId, label: 'سایزینگ کانال تهویه', icon: Wind, component: MechanicalHvac },
+    { id: 'hvac_pipe' as TabId, label: 'سایزینگ لوله‌های تأسیسات', icon: Ruler, component: MechanicalHvac },
     { id: 'hvac_test' as TabId, label: 'تست‌ها و گواهی مبحث ۱۴', icon: ClipboardCheck, component: MechanicalHvac },
     { id: 'contact' as TabId, label: 'تماس با ما', icon: MessageSquare, component: ContactUs },
   ];
@@ -730,8 +730,9 @@ const App: React.FC = () => {
                    tab.id === 'plumbing_rainwater' ? 'آب باران' :
                    tab.id === 'plumbing_test' ? 'تست' :
                    tab.id === 'hvac_load' ? 'بار تهویه' :
-                   tab.id === 'hvac_duct' ? 'سایزبندی کانال' :
-                   tab.id === 'hvac_equip' ? 'تجهیزات/برق' :
+                   tab.id === 'hvac_duct' ? 'کانال تهویه' :
+                   tab.id === 'hvac_pipe' ? 'سایز لوله' :
+                   
                    tab.id === 'hvac_test' ? 'آزمون‌ها' :
                    tab.label.split(' ')[0]}
                 </span>

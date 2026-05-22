@@ -45,8 +45,8 @@ const BUILDING_USAGES = [
 
 export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) => {
   // Let the component tab be driven by the sidebar tab or fall back to internal
-  const [internalTab, setInternalTab] = useState<'load' | 'duct' | 'equip' | 'test'>('load');
-  const currentTab = (activeTabId?.replace('hvac_', '') as 'load' | 'duct' | 'equip' | 'test') || internalTab;
+  const [internalTab, setInternalTab] = useState<'load' | 'duct' | 'pipe' | 'test'>('load');
+  const currentTab = (activeTabId?.replace('hvac_', '') as 'load' | 'duct' | 'pipe' | 'test') || internalTab;
 
   // -- Tab 1: Load Sizer States --
   const [selectedCity, setSelectedCity] = useState('tehran');
@@ -60,7 +60,7 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
   const [equipmentHeat, setEquipmentHeat] = useState<'low' | 'normal' | 'high'>('normal');
 
   // -- Tab 2: Duct & Pipe States --
-  const [customCfmStr, setCustomCfmStr] = useState<string>('1200');
+  const [customCfmStr, setCustomCfmStr] = useState<string>('');
   const [designVelocity, setDesignVelocity] = useState<string>('900'); // FPM
   const [ductShapeType, setDuctShapeType] = useState<'ratio' | 'fixedWidth'>('ratio');
   const [aspectRatio, setAspectRatio] = useState<string>('1.5'); // Width to height
@@ -68,8 +68,8 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
 
   // Pipe states
   const [pipeFluid, setPipeFluid] = useState<'water' | 'refrig_gas' | 'refrig_liq'>('water');
-  const [pipeFlowGpm, setPipeFlowGpm] = useState<string>('10');
-  const [pipeCapacityTons, setPipeCapacityTons] = useState<string>('4');
+  const [pipeFlowGpm, setPipeFlowGpm] = useState<string>('');
+  const [pipeCapacityTons, setPipeCapacityTons] = useState<string>('');
 
   // -- Tab 3: HVAC Equipment recommendation states --
   const [heatingSource, setHeatingSource] = useState<'radiator' | 'package' | 'duct_coil' | 'chiller_fcu'>('package');
@@ -115,7 +115,7 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
   const heatingKcal = Math.round(finalHeatingBtu / 3.968);
 
   // Duct sizing logic
-  const calcCfm = parseFloat(customCfmStr) || requiredCFM || 1200;
+  const calcCfm = customCfmStr !== '' ? (parseFloat(customCfmStr) || 0) : (requiredCFM || 1200);
   const calcVelocity = parseFloat(designVelocity) || 900;
 
   const ductAreaSqFt = calcCfm / calcVelocity;
@@ -146,7 +146,7 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
   // Piping Sizing algorithm (Based on safe velocity & standard commercial pipe options)
   const computePipeSizing = () => {
     if (pipeFluid === 'water') {
-      const gpm = parseFloat(pipeFlowGpm) || 10;
+      const gpm = pipeFlowGpm !== '' ? (parseFloat(pipeFlowGpm) || 0) : parseFloat((coolingTons * 2.4).toFixed(1)) || 10;
       let recSize = '1"';
       let velocity = 0;
       let pressDrop = 0;
@@ -184,7 +184,7 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
       };
     } else {
       // Refrigerant Lines (R-410A) split selection based on Tons of cooling
-      const tons = parseFloat(pipeCapacityTons) || 4;
+      const tons = pipeCapacityTons !== '' ? (parseFloat(pipeCapacityTons) || 0) : (coolingTons || 4);
       if (pipeFluid === 'refrig_gas') {
         let recSize = '5/8"';
         if (tons <= 1.5) recSize = '1/2" (12.7 mm) CU';
@@ -652,13 +652,12 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
           )}
 
 
-          {/* TAB 2: DUCT & PIPING SIZER MODULE */}
+          {/* TAB 2: DUCT SIZER MODULE */}
           {currentTab === 'duct' && (
             <div className="space-y-8 animate-fade">
-              <div className="grid lg:grid-cols-2 gap-8 items-start">
-                
+              <div className="max-w-3xl mx-auto">
                 {/* 2.1: DUCT SIZER PANEL */}
-                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 space-y-5">
+                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 md:p-8 space-y-5">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-200/50">
                     <Wind className="w-5 h-5 text-amber-600" />
                     <h3 className="text-sm font-black text-slate-800">سایزبندی علمی کانال گالوانیزه هوا (Duct Sizer)</h3>
@@ -670,9 +669,9 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                       <label className="text-xs font-black text-slate-400 block mb-1 mr-1">دبی هوا (CFM)</label>
                       <input 
                         type="number" 
-                        value={customCfmStr}
+                        value={customCfmStr !== '' ? customCfmStr : (requiredCFM || '')}
                         onChange={(e) => setCustomCfmStr(e.target.value)}
-                        placeholder="1200"
+                        placeholder={(requiredCFM || 1200).toString()}
                         className="w-full bg-white border border-slate-200 px-3 py-2.5 rounded-xl font-bold text-xs text-slate-800 outline-none focus:border-amber-500 ltr"
                       />
                       <span className="text-[9px] text-slate-400 font-bold block mt-1 mr-1">ظرفیت سرمایشی شما: {requiredCFM} CFM</span>
@@ -777,9 +776,17 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                   </div>
 
                 </div>
+              </div>
+            </div>
+          )}
 
+
+          {/* TAB 2.5: PIPING SIZER MODULE */}
+          {currentTab === 'pipe' && (
+            <div className="space-y-8 animate-fade">
+              <div className="max-w-3xl mx-auto">
                 {/* 2.2: PIPING SIZER PANEL */}
-                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 space-y-5">
+                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 md:p-8 space-y-5">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-200/50">
                     <Ruler className="w-5 h-5 text-amber-600" />
                     <h3 className="text-sm font-black text-slate-800">سایزبندی لوله‌های آبرسانی کویل و مسی مبرد</h3>
@@ -815,13 +822,13 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
 
                   {pipeFluid === 'water' ? (
                     <div>
-                      <label className="text-xs font-black text-slate-400 block mb-1 mr-1">جریان کل آب مصرفی (GPM)</label>
+                      <label className="text-xs font-black text-slate-400 block mb-1 mr-1">جریان کل آب در گردش (GPM)</label>
                       <input 
                         type="number"
-                        value={pipeFlowGpm}
+                        value={pipeFlowGpm !== '' ? pipeFlowGpm : (parseFloat((coolingTons * 2.4).toFixed(1)) || '')}
                         onChange={(e) => setPipeFlowGpm(e.target.value)}
-                        placeholder="10"
-                        className="w-full bg-white border border-slate-200 px-3 py-2 rounded-xl font-bold text-xs text-slate-800 outline-none focus:border-amber-500 ltr"
+                        placeholder={(parseFloat((coolingTons * 2.4).toFixed(1)) || 10).toString()}
+                        className="w-full bg-white border border-slate-200 px-3 py-2.5 rounded-xl font-bold text-xs text-slate-800 outline-none focus:border-amber-500 ltr"
                       />
                       <span className="text-[9px] text-slate-400 font-bold block mt-1 mr-1">دبی تقریبی چیلر شما برای {coolingTons} تن تبرید: {(coolingTons * 2.4).toFixed(1)} GPM</span>
                     </div>
@@ -830,10 +837,10 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                       <label className="text-xs font-black text-slate-400 block mb-1 mr-1">ظرفیت سرمایش خالص بخش مبرد (Tons of Cool)</label>
                       <input 
                         type="number"
-                        value={pipeCapacityTons}
+                        value={pipeCapacityTons !== '' ? pipeCapacityTons : (coolingTons || '')}
                         onChange={(e) => setPipeCapacityTons(e.target.value)}
-                        placeholder="4"
-                        className="w-full bg-white border border-slate-200 px-3 py-2 rounded-xl font-bold text-xs text-slate-800 outline-none focus:border-amber-500 ltr"
+                        placeholder={(coolingTons || 4).toString()}
+                        className="w-full bg-white border border-slate-200 px-3 py-2.5 rounded-xl font-bold text-xs text-slate-800 outline-none focus:border-amber-500 ltr"
                       />
                       <span className="text-[9px] text-slate-400 font-bold block mt-1 mr-1">معادل بار فضایی محاسبه شده شما: {coolingTons} TR</span>
                     </div>
@@ -869,176 +876,12 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                   </div>
 
                 </div>
-
               </div>
             </div>
           )}
 
 
-          {/* TAB 3: PORTAL EQUIPMENT & AMPEHES LOAD */}
-          {currentTab === 'equip' && (
-            <div className="space-y-8 animate-fade">
-              <div className="grid lg:grid-cols-2 gap-8 items-start">
-                
-                {/* 3.1: Technical System Configurator */}
-                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 space-y-6">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200/50">
-                    <Wind className="w-5 h-5 text-amber-600" />
-                    <h3 className="text-sm font-black text-slate-800">پیکربندی سیستم مکانیکی تهویه انتخابی ساختمان</h3>
-                  </div>
 
-                  {/* Cooling configuration options */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-slate-400 block mr-1">سیستم سرمایشی پیشنهادی پروژه</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCoolingSource('evaporative')}
-                        className={`p-3 text-right rounded-xl transition-all border ${coolingSource === 'evaporative' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
-                      >
-                        <span className="text-xs font-black block">کولر آبی تبخیری (سلولزی)</span>
-                        <span className="text-[9px] opacity-75 block font-bold">بسیار کم هزینه، رطوبت شدید خروجی</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCoolingSource('duct_split')}
-                        className={`p-3 text-right rounded-xl transition-all border ${coolingSource === 'duct_split' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
-                      >
-                        <span className="text-xs font-black block">داکت اسپلیت متراژ بالا</span>
-                        <span className="text-[9px] opacity-75 block font-bold">گرمایش کویل آبگرم، سرمایش کمپرسور</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCoolingSource('chiller')}
-                        className={`p-3 text-right rounded-xl transition-all border ${coolingSource === 'chiller' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
-                      >
-                        <span className="text-xs font-black block">مینی چیلر / چیلر مرکزی با فن‌کویل</span>
-                        <span className="text-[9px] opacity-75 block font-bold">بهترین آسایش صوتی، دمای لوکس متغیر</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCoolingSource('vrf')}
-                        className={`p-3 text-right rounded-xl transition-all border ${coolingSource === 'vrf' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
-                      >
-                        <span className="text-xs font-black block">مولتی اسپلیت مرکزی VRF</span>
-                        <span className="text-[9px] opacity-75 block font-bold">کمپکت، راندمان بالا مبرد، بسیار گران‌قیمت</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* City specific climate warnings */}
-                  <div className="p-4 bg-white rounded-2xl border border-slate-150 space-y-3">
-                    <span className="text-xs font-black text-slate-705 block">ارزیابی فنی بر اساس اقلیم شهر {cityClimate.name}:</span>
-                    
-                    {selectedCity === 'rasht' && coolingSource === 'evaporative' && (
-                      <div className="flex gap-2.5 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800">
-                        <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />
-                        <p className="text-[10px] font-bold leading-relaxed">
-                          <strong className="block mb-0.5 text-xs font-black">خطا: بهره‌گیری از کولر آبی در شهر مرطوب مجاز نیست!</strong>
-                          هوای سواحل گیلان و رشت در فصول تابستان رطوبت شدیدی دارند. استفاده از سیستم تبخیری مانع خروج مناسب عرق ساکنان شده و شرایط ناخوشایندی ایجاد خواهد نمود.
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedCity === 'ahvaz' && (
-                      <div className="flex gap-2.5 p-3 bg-amber-50 border border-amber-200/50 rounded-xl text-amber-800">
-                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 animate-pulse" />
-                        <p className="text-[10px] font-bold leading-relaxed">
-                          <strong className="block mb-0.5 text-xs font-black">توجه: لزوم استفاده از کمپرسورهای حاره‌ای T3</strong>
-                          دمای تابستانی اهواز تا مرز ۴۹ درجه ارتقا می‌یابد. همواره باید از موتورهای مجهز به مدل کمپرسور T3 حاره‌ای استفاده شود، کمپرسورهای T1 به سرعت دچار اورلود حرارتی و خاموشی خط می‌گردند.
-                        </p>
-                      </div>
-                    )}
-
-                    {coolingSource !== 'evaporative' && (
-                      <div className="flex gap-2 p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800">
-                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <p className="text-[10px] font-black leading-relaxed">
-                          مغایرت بحرانی با مقررات ملی مبحث ۱۴ برای کاربری انتخابی فضا مشهود نیست و راندمان حرارتی قابل تایید است.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-
-                {/* 3.2: Electrical Load Sizer of HVAC */}
-                <div className="bg-slate-50/60 rounded-3xl border border-slate-205 p-6 space-y-5">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200/50">
-                    <Zap className="w-5 h-5 text-amber-600" />
-                    <h3 className="text-sm font-black text-slate-800">محاسبات جریان جریان الکتریکی و کابل تغذیه</h3>
-                  </div>
-
-                  <div className="bg-white p-5 rounded-2xl border border-slate-150 space-y-4">
-                    <div className="flex items-end justify-between">
-                      <span className="text-xs font-black text-slate-700">برق الکتریکال تخمینی بخش تهویه:</span>
-                      <div className="text-left font-sans">
-                        <span className="text-2xl font-black text-amber-600 leading-none">{electricalData.kw}</span>
-                        <span className="text-[10px] font-bold text-slate-400 block">کیلووات خالص</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2">
-                      <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-extrabold block">امپراژ در سیستم تک‌فاز ۲۲۰ ولت</span>
-                          <span className="text-xs font-black text-slate-800">مجموع جریان مصرفی رفت</span>
-                        </div>
-                        <span className="font-sans font-black text-sm text-slate-900">{electricalData.singlePhaseAmp} Amps</span>
-                      </div>
-
-                      <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-extrabold block">امپراژ در سیستم سه‌فاز ۳۸۰ ولت</span>
-                          <span className="text-xs font-black text-slate-800">جریان متقارن سه فاز برابر</span>
-                        </div>
-                        <span className="font-sans font-black text-sm text-slate-900">{electricalData.threePhaseAmp} Amps</span>
-                      </div>
-                    </div>
-
-                    {/* Wire size recommendation */}
-                    <div className="grid grid-cols-2 gap-3 pt-1">
-                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[9px] text-slate-400 font-bold block mb-1">
-                          {electricalData.mustBeThreePhase ? 'کابل سه‌فاز پیشنهادی:' : 'کابل تک‌فاز پیشنهادی:'}
-                        </span>
-                        <p className="text-xs font-black text-slate-800 font-mono text-center" dir="ltr">
-                          {electricalData.mustBeThreePhase ? electricalData.wireSizeThree : electricalData.wireSizeSingle}
-                        </p>
-                      </div>
-                      <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[9px] text-slate-400 font-bold block mb-1">
-                          {electricalData.mustBeThreePhase ? 'کلید مینیاتوری سه‌فاز:' : 'کلید مینیاتوری تک‌فاز:'}
-                        </span>
-                        <p className="text-xs font-black text-slate-800 font-mono text-center" dir="ltr">
-                          {electricalData.mustBeThreePhase ? electricalData.fuseThreeCooling : electricalData.fuseSingleCooling}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Power grid warning */}
-                    {electricalData.mustBeThreePhase ? (
-                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex gap-2">
-                        <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />
-                        <p className="text-[10px] text-rose-800 font-bold leading-relaxed">
-                          ظرفیت تهویه پروژه فراتر از حد مجاز انشعاب معمولی تک فاز است. خرید و راه‌اندازی کمپرسور سه‌فاز (۳۸۰ ولت) و تسلیم تاییدیه اداره برق در طبقه همکف الزامی است.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-3 bg-amber-50 border border-amber-200/50 rounded-xl flex gap-2">
-                        <Info className="w-4.5 h-4.5 text-amber-500 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-amber-850 font-bold leading-relaxed">
-                          این دستگاه با فیوزهای تک فاز و انشعاب خانگی با سیم کشی‌های استاندارد بدون ریسک فیوز زنی قابلیت همخوانی و بهره‌گیری را دارد.
-                        </p>
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
 
 
           {/* TAB 4: TESTING & COMPLIANCE CERTIFICATE */}

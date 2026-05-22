@@ -385,15 +385,26 @@ export const UserGuide: React.FC<UserGuideProps> = ({ onClose }) => {
               exit={{ opacity: 0, x: 15 }}
               className="max-w-4xl mx-auto"
             >
-              {/* Back to selectors header link */}
-              <button
-                id="btn-back-to-selector"
-                onClick={() => setSelectedCategory(null)}
-                className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-full text-[11px] font-black transition-all mb-6 cursor-pointer border border-slate-200/50"
-              >
-                <ChevronRight className="w-4 h-4" />
-                <span>بازگشت به انتخاب سیستم‌ها</span>
-              </button>
+              {/* Back to selectors and Home header buttons */}
+              <div className="flex items-center gap-2 mb-6">
+                <button
+                  id="btn-back-to-selector"
+                  onClick={() => setSelectedCategory(null)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-[#0f172a] rounded-full text-[11px] font-black transition-all cursor-pointer border border-slate-200/65"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                  <span>بازگشت به انتخاب سیستم‌ها</span>
+                </button>
+                <button
+                  id="btn-guide-detail-home"
+                  onClick={onClose}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-[#0f172a] rounded-full text-[11px] font-black transition-all cursor-pointer border border-slate-200/65"
+                  title="بازگشت به خانه"
+                >
+                  <Home className="w-4 h-4 text-slate-500" />
+                  <span>خانه (Home)</span>
+                </button>
+              </div>
 
               {/* Title & Banner Info Block */}
               <div className="bg-white rounded-[32px] p-6 md:p-8 border border-slate-200/60 shadow-sm mb-6 relative overflow-hidden">
