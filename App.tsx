@@ -681,7 +681,7 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden relative">
-        <div className="h-full custom-scrollbar p-4 md:p-10 pb-28 md:pb-10 overflow-y-auto">
+        <div className={`h-full custom-scrollbar p-4 md:p-10 ${activeTab === 'contact' ? 'pb-10' : 'pb-28'} md:pb-10 overflow-y-auto`}>
           {ActiveComponent === PlumbingSystem ? (
             <PlumbingSystem activeTabId={activeTab} />
           ) : ActiveComponent === MechanicalHvac ? (
@@ -692,54 +692,56 @@ const App: React.FC = () => {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <nav 
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 z-40 no-print"
-          onTouchStart={handleInteractionStart}
-          onTouchEnd={handleInteractionEnd}
-          onMouseDown={handleInteractionStart}
-          onMouseUp={handleInteractionEnd}
-        >
-          <div 
-            ref={scrollRef}
-            className="flex w-full overflow-x-auto no-scrollbar gap-1 px-2"
-            style={{ direction: 'rtl' }}
+        {activeTab !== 'contact' && (
+          <nav 
+            className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 z-40 no-print"
+            onTouchStart={handleInteractionStart}
+            onTouchEnd={handleInteractionEnd}
+            onMouseDown={handleInteractionStart}
+            onMouseUp={handleInteractionEnd}
           >
-            {/* Double the tabs for infinite loop effect */}
-            {[...tabs, ...tabs].map((tab, idx) => (
-              <button
-                key={`${tab.id}-${idx}`}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex flex-col items-center justify-center min-w-[80px] py-1 transition-all duration-300 relative
-                  ${activeTab === tab.id 
-                    ? (activeSection === 'gas' ? 'text-blue-600' : activeSection === 'fire' ? 'text-rose-600' : activeSection === 'plumbing' ? 'text-cyan-600' : 'text-amber-600') 
-                    : 'text-slate-400'}
-                `}
-              >
-                {activeTab === tab.id && idx < tabs.length && (
-                  <motion.div 
-                    layoutId="activeTabMobile"
-                    className={`absolute top-[-8px] w-5 h-1 rounded-full ${activeSection === 'gas' ? 'bg-blue-600' : activeSection === 'fire' ? 'bg-rose-600' : activeSection === 'plumbing' ? 'bg-cyan-600' : 'bg-amber-600'}`} 
-                  />
-                )}
-                <tab.icon className="w-6 h-6 mb-1" />
-                <span className="text-[9px] font-bold">
-                  {tab.id === 'valve' ? 'شیر' : 
-                   tab.id === 'plumbing' ? 'آب/فاضلاب' :
-                   tab.id === 'plumbing_reservoir' ? 'ذخیره آب' :
-                   tab.id === 'plumbing_rainwater' ? 'آب باران' :
-                   tab.id === 'plumbing_test' ? 'تست' :
-                   tab.id === 'hvac_load' ? 'بار تهویه' :
-                   tab.id === 'hvac_duct' ? 'کانال تهویه' :
-                   tab.id === 'hvac_pipe' ? 'سایز لوله' :
-                   
-                   tab.id === 'hvac_test' ? 'آزمون‌ها' :
-                   tab.label.split(' ')[0]}
-                </span>
-              </button>
-            ))}
-          </div>
-        </nav>
+            <div 
+              ref={scrollRef}
+              className="flex w-full overflow-x-auto no-scrollbar gap-1 px-2"
+              style={{ direction: 'rtl' }}
+            >
+              {/* Double the tabs for infinite loop effect */}
+              {[...tabs, ...tabs].map((tab, idx) => (
+                <button
+                  key={`${tab.id}-${idx}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex flex-col items-center justify-center min-w-[80px] py-1 transition-all duration-300 relative
+                    ${activeTab === tab.id 
+                      ? (activeSection === 'gas' ? 'text-blue-600' : activeSection === 'fire' ? 'text-rose-600' : activeSection === 'plumbing' ? 'text-cyan-600' : 'text-amber-600') 
+                      : 'text-slate-400'}
+                  `}
+                >
+                  {activeTab === tab.id && idx < tabs.length && (
+                    <motion.div 
+                      layoutId="activeTabMobile"
+                      className={`absolute top-[-8px] w-5 h-1 rounded-full ${activeSection === 'gas' ? 'bg-blue-600' : activeSection === 'fire' ? 'bg-rose-600' : activeSection === 'plumbing' ? 'bg-cyan-600' : 'bg-amber-600'}`} 
+                    />
+                  )}
+                  <tab.icon className="w-6 h-6 mb-1" />
+                  <span className="text-[9px] font-bold">
+                    {tab.id === 'valve' ? 'شیر' : 
+                     tab.id === 'plumbing' ? 'آب/فاضلاب' :
+                     tab.id === 'plumbing_reservoir' ? 'ذخیره آب' :
+                     tab.id === 'plumbing_rainwater' ? 'آب باران' :
+                     tab.id === 'plumbing_test' ? 'تست' :
+                     tab.id === 'hvac_load' ? 'بار تهویه' :
+                     tab.id === 'hvac_duct' ? 'کانال تهویه' :
+                     tab.id === 'hvac_pipe' ? 'سایز لوله' :
+                     
+                     tab.id === 'hvac_test' ? 'آزمون‌ها' :
+                     tab.label.split(' ')[0]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
       </main>
     </div>
   );
