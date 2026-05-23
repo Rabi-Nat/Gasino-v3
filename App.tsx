@@ -61,9 +61,9 @@ const App: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [landingStyle, setLandingStyle] = useState<'creative' | 'classic'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('landingStyle') as 'creative' | 'classic') || 'classic';
+      return (localStorage.getItem('landingStyle') as 'creative' | 'classic') || 'creative';
     }
-    return 'classic';
+    return 'creative';
   });
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
