@@ -497,7 +497,7 @@ const App: React.FC = () => {
                         const next = 'creative';
                         setLandingStyle(next);
                         localStorage.setItem('landingStyle', next);
-                        showToast(`طرح لندینگ: کلاسیک (لیستی)`);
+                        showToast(`طرح لندینگ: مدرن (جدید)`);
                         setShowSettings(false);
                       }}
                       className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
@@ -620,7 +620,7 @@ const App: React.FC = () => {
                       const next = 'classic';
                       setLandingStyle(next);
                       localStorage.setItem('landingStyle', next);
-                      showToast(`طرح لندینگ: مدرن (جدید)`);
+                      showToast(`طرح لندینگ: کلاسیک (لیستی)`);
                       setShowSettings(false);
                     }}
                     className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
