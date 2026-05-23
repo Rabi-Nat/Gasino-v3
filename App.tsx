@@ -21,7 +21,12 @@ import {
   Sliders,
   CloudRain,
   ClipboardCheck,
-  BookOpen
+  BookOpen,
+  Settings,
+  Share2,
+  Star,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { PipeCalculator } from './components/PipeCalculator';
 import { Ventilation } from './components/Ventilation';
@@ -41,6 +46,7 @@ import { FirePumpHead } from './components/FirePumpHead';
 import { PlumbingSystem } from './components/PlumbingSystem';
 import { MechanicalHvac } from './components/MechanicalHvac';
 import { UserGuide } from './components/UserGuide';
+import ClassicLanding from './components/ClassicLanding';
 
 type SectionId = 'gas' | 'fire' | 'plumbing' | 'hvac';
 type TabId = 'pipe' | 'ventilation' | 'meter' | 'valve' | 'safety' | 'price' | 'contact' | 'store' | 'test' | 'water' | 'firepipe' | 'extinguisher' | 'pump' | 'plumbing' | 'plumbing_reservoir' | 'plumbing_rainwater' | 'plumbing_test' | 'hvac_load' | 'hvac_duct' | 'hvac_pipe' | 'hvac_test';
@@ -51,6 +57,60 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('pipe');
   const [isLoading, setIsLoading] = useState(true);
   const [showGuide, setShowGuide] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [landingStyle, setLandingStyle] = useState<'creative' | 'classic'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('landingStyle') as 'creative' | 'classic') || 'classic';
+    }
+    return 'classic';
+  });
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDark && !hasSelectedSection) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark, hasSelectedSection]);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => prev === msg ? null : prev);
+    }, 3000);
+  };
+
+  const handleShareApp = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Gasino',
+        text: 'Gasino - پرتال محاسبات مهندسی تاسیسات ساختمان',
+        url: window.location.href,
+      }).then(() => {
+        showToast('برنامه با موفقیت به اشتراک گذاشته شد! 🚀');
+      }).catch(() => {
+        navigator.clipboard.writeText(window.location.href);
+        showToast('لینک برنامه کپی شد! 📋');
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('لینک برنامه کپی شد! 📋');
+    }
+    setShowSettings(false);
+  };
+
+  const handleRateApp = () => {
+    showToast('ثبت شد! از ثبت امتیاز ۵ ستاره شما صمیمانه سپاسگزاریم 😍⭐');
+    setShowSettings(false);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
@@ -383,11 +443,226 @@ const App: React.FC = () => {
       show: { y: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 180, damping: 20 } }
     };
 
+    if (landingStyle === 'classic') {
+      return (
+        <div className="h-screen w-full bg-[#f8fafc] dark:bg-[#070b13] flex flex-col px-4 pb-16 relative font-sans overflow-y-auto">
+          {/* Settings Floating Button */}
+          <div className="fixed left-4 top-4 md:left-8 md:top-8 z-55 no-print">
+            <button 
+              onClick={() => setShowSettings(!showSettings)}
+              className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md hover:bg-slate-50 dark:hover:bg-slate-705 active:scale-95 transition-all cursor-pointer text-slate-600 dark:text-slate-300 relative"
+              title="تنظیمات"
+            >
+              <Settings className={`w-5 h-5 transition-transform duration-500 ${showSettings ? 'rotate-90 text-blue-600 dark:text-blue-400' : ''}`} />
+            </button>
+            
+            {/* Dropdown Menu */}
+            <AnimatePresence>
+              {showSettings && (
+                <>
+                  {/* Overlay layer to close modern popup on click outside */}
+                  <div 
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setShowSettings(false)}
+                  />
+                  
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.93, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.93, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 mt-2 w-52 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-2.5 text-right font-sans flex flex-col gap-1 z-50 select-none animate-none text-slate-800 dark:text-slate-200"
+                    style={{ direction: 'rtl' }}
+                  >
+                    {/* Theme Toggle (Dark Mode) */}
+                    <button
+                      onClick={() => setIsDark(!isDark)}
+                      className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+                        <span className="text-xs font-black text-slate-700 dark:text-slate-200">حالت تاریک</span>
+                      </div>
+                      {/* Switch Indicator */}
+                      <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${isDark ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                        <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200 ${isDark ? 'translate-x-[14px]' : 'translate-x-0'}`} />
+                      </div>
+                    </button>
+                    
+                    <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                    {/* Landing Style Option Toggle */}
+                    <button
+                      onClick={() => {
+                        const next = 'creative';
+                        setLandingStyle(next);
+                        localStorage.setItem('landingStyle', next);
+                        showToast(`طرح لندینگ: کلاسیک (لیستی)`);
+                        setShowSettings(false);
+                      }}
+                      className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sliders className="w-4 h-4 text-blue-500" />
+                        <span className="text-xs font-black text-slate-700 dark:text-slate-200">طرح صفحه اصلی</span>
+                      </div>
+                      <span className="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2.1 py-0.5 rounded-lg font-black">
+                        مدرن
+                      </span>
+                    </button>
+
+                    <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                    {/* Share App */}
+                    <button
+                      onClick={handleShareApp}
+                      className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                    >
+                      <Share2 className="w-4 h-4 text-emerald-500" />
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-200">به اشتراک‌گذاری برنامه</span>
+                    </button>
+
+                    <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                    {/* Rate App */}
+                    <button
+                      onClick={handleRateApp}
+                      className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                    >
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-200">امتیاز به برنامه</span>
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <ClassicLanding 
+            isDark={isDark}
+            onSelectSection={(secId, tabId) => {
+              setActiveSection(secId as SectionId);
+              setActiveTab(tabId as TabId);
+              setHasSelectedSection(true);
+            }}
+            onShowGuide={() => setShowGuide(true)}
+          />
+
+          {/* Global Toast Notification */}
+          <AnimatePresence>
+            {toastMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-55 px-5 py-3 bg-slate-900 border border-slate-800 text-white rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 text-right pointer-events-none"
+                style={{ direction: 'rtl' }}
+              >
+                <span>{toastMessage}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      );
+    }
+
     return (
-      <div className="h-screen w-full bg-[#f8fafc] flex flex-col items-center py-10 px-4 md:py-16 relative font-sans overflow-y-auto">
+      <div className="h-screen w-full bg-[#f8fafc] dark:bg-[#070b13] flex flex-col items-center px-4 pb-16 relative font-sans overflow-y-auto">
         
+        {/* Settings Floating Button */}
+        <div className="fixed left-4 top-4 md:left-8 md:top-8 z-55 no-print">
+          <button 
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md hover:bg-slate-50 dark:hover:bg-slate-705 active:scale-95 transition-all cursor-pointer text-slate-600 dark:text-slate-300 relative"
+            title="تنظیمات"
+          >
+            <Settings className={`w-5 h-5 transition-transform duration-500 ${showSettings ? 'rotate-90 text-blue-600 dark:text-blue-400' : ''}`} />
+          </button>
+          
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {showSettings && (
+              <>
+                {/* Overlay layer to close modern popup on click outside */}
+                <div 
+                  className="fixed inset-0 z-40 cursor-default"
+                  onClick={() => setShowSettings(false)}
+                />
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.93, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.93, y: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 mt-2 w-52 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-2.5 text-right font-sans flex flex-col gap-1 z-50 select-none animate-none text-slate-800 dark:text-slate-200"
+                  style={{ direction: 'rtl' }}
+                >
+                  {/* Theme Toggle (Dark Mode) */}
+                  <button
+                    onClick={() => setIsDark(!isDark)}
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-200">حالت تاریک</span>
+                    </div>
+                    {/* Switch Indicator */}
+                    <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${isDark ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200 ${isDark ? 'translate-x-[14px]' : 'translate-x-0'}`} />
+                    </div>
+                  </button>
+                  
+                  <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                  {/* Landing Style Option Toggle */}
+                  <button
+                    onClick={() => {
+                      const next = 'classic';
+                      setLandingStyle(next);
+                      localStorage.setItem('landingStyle', next);
+                      showToast(`طرح لندینگ: مدرن (جدید)`);
+                      setShowSettings(false);
+                    }}
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-blue-500" />
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-200">طرح صفحه اصلی</span>
+                    </div>
+                    <span className="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2.1 py-0.5 rounded-lg font-black">
+                      کلاسیک
+                    </span>
+                  </button>
+
+                  <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                  {/* Share App */}
+                  <button
+                    onClick={handleShareApp}
+                    className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-xs font-black text-slate-700 dark:text-slate-200">به اشتراک‌گذاری برنامه</span>
+                  </button>
+
+                  <div className="h-[1px] bg-slate-100 dark:bg-slate-700 my-0.5" />
+
+                  {/* Rate App */}
+                  <button
+                    onClick={handleRateApp}
+                    className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-right cursor-pointer"
+                  >
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span className="text-xs font-black text-slate-700 dark:text-slate-200">امتیاز به برنامه</span>
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Fine engineering background grid decor */}
-        <div className="absolute inset-0 bg-[size:32px_32px] bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] opacity-[0.2] pointer-events-none" />
+        <div className="absolute inset-0 bg-[size:32px_32px] bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#334155_0.5px,transparent_0.5px),linear-gradient(to_bottom,#334155_0.5px,transparent_0.5px)] opacity-[0.2] dark:opacity-[0.1] pointer-events-none" />
         
         {/* Soft abstract blur accents */}
         <div className="absolute top-0 left-1/3 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -395,8 +670,8 @@ const App: React.FC = () => {
         <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-emerald-500/3 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Animated Brand Header */}
-        <div className="text-center mb-10 md:mb-12 relative z-10" dir="ltr">
-          <div className="relative inline-block px-10 py-4 cursor-default select-none">
+        <div className="sticky top-0 w-full pt-4 pb-3 mb-2 text-center z-40 bg-[#f8fafc]/90 dark:bg-[#070b13]/90 backdrop-blur-md transition-colors duration-300 flex justify-center animate-none" dir="ltr">
+          <div className="relative inline-block px-6 py-1 cursor-default select-none">
             {/* Ambient colorful backdrop glow (slowly breathing and rotating) */}
             <motion.div 
               animate={{ 
@@ -498,9 +773,9 @@ const App: React.FC = () => {
               <motion.div
                 key={menuItem.id}
                 variants={itemVariants}
-                style={{ backgroundColor: menuItem.glowColor }}
+                style={{ backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : menuItem.glowColor }}
                 onClick={menuItem.action}
-                className={`group relative overflow-hidden p-5 md:p-6 rounded-[28px] border ${menuItem.borderClass} ${menuItem.bgClass} cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-between gap-4`}
+                className={`group relative overflow-hidden p-5 md:p-6 rounded-[28px] border ${menuItem.borderClass} dark:border-slate-700/80 dark:hover:border-slate-600 ${menuItem.bgClass} cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-between gap-4`}
               >
                 {/* Large Subtle Icon Watermark in the background corner */}
                 <div className="absolute left-[-16px] bottom-[-20px] opacity-[0.03] group-hover:opacity-[0.07] transition-all duration-500 pointer-events-none rotate-[-15deg]">
@@ -508,26 +783,26 @@ const App: React.FC = () => {
                 </div>
 
                 {/* English Watermark Text */}
-                <div className="absolute left-4 top-2 text-[8px] font-black tracking-widest text-[#94a3b8]/15 font-mono select-none pointer-events-none hidden md:block">
+                <div className="absolute left-4 top-2 text-[8px] font-black tracking-widest text-[#94a3b8]/15 dark:text-[#94a3b8]/10 font-mono select-none pointer-events-none hidden md:block">
                   {menuItem.watermarkText}
                 </div>
 
                 {/* Left Side Content - Standard Meta & Chevron */}
                 <div className="flex flex-col items-start text-right z-10 flex-1 pl-2">
                   <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
-                    <h3 className={`text-base font-black ${isPlaceholder ? 'text-slate-500' : 'text-slate-800 group-hover:text-slate-950'} transition-colors`}>
+                    <h3 className={`text-base font-black ${isPlaceholder ? 'text-slate-500' : 'text-slate-800 dark:text-slate-200 group-hover:text-slate-950 dark:group-hover:text-white'} transition-colors`}>
                       {menuItem.title}
                     </h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${menuItem.badgeColor}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${menuItem.badgeColor} dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600`}>
                       {menuItem.badge}
                     </span>
                   </div>
                   
-                  <p className="text-slate-400 text-[11px] leading-relaxed font-bold max-w-md">
+                  <p className="text-slate-400 dark:text-slate-350 text-[11px] leading-relaxed font-bold max-w-md">
                     {menuItem.description}
                   </p>
                   
-                  <span className="text-[9px] text-slate-350 font-black mt-1.5 tracking-wide uppercase font-mono block">
+                  <span className="text-[9px] text-slate-350 dark:text-slate-400 font-black mt-1.5 tracking-wide uppercase font-mono block">
                     {menuItem.englishTitle}
                   </span>
                 </div>
@@ -537,7 +812,11 @@ const App: React.FC = () => {
                   <motion.div 
                     whileHover={isPlaceholder ? {} : { scale: 1.1, rotate: 5 }}
                     whileTap={isPlaceholder ? {} : { scale: 0.95 }}
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isPlaceholder ? 'bg-slate-100 text-slate-400/50' : 'bg-white text-current shadow-sm border border-slate-200/50 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 group-hover:shadow-md'}`}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      isPlaceholder 
+                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400/50' 
+                        : `bg-white dark:bg-slate-800 ${menuItem.colorClass} dark:text-[#f8fafc] shadow-sm border border-slate-200/50 dark:border-slate-700 group-hover:bg-slate-900 dark:group-hover:bg-slate-700 group-hover:text-white dark:group-hover:text-white group-hover:border-slate-900 dark:group-hover:border-slate-700 group-hover:shadow-md`
+                    }`}
                   >
                     <IconComp className="w-5 h-5" />
                   </motion.div>
@@ -553,10 +832,25 @@ const App: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.4 }}
           transition={{ delay: 0.7 }}
-          className="mt-14 text-[9px] font-bold text-slate-400 tracking-wider text-center ltr"
+          className="mt-14 text-xs font-black text-slate-400 text-center"
         >
-          GASINO ENGINEERING PORTAL • VERSION 5.5 • SECURE DESIGN
+          مقررات ملی ساختمان
         </motion.div>
+
+        {/* Global Toast Notification */}
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-55 px-5 py-3 bg-slate-900 border border-slate-800 text-white rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 text-right pointer-events-none"
+              style={{ direction: 'rtl' }}
+            >
+              <span>{toastMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -564,9 +858,9 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden text-slate-900 bg-slate-50 font-sans">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden text-slate-900 bg-slate-50 dark:bg-[#070b13] dark:text-slate-100 font-sans">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-72 bg-white border-l border-slate-200 p-6 z-50 no-print">
+      <aside className="hidden md:flex flex-col w-72 bg-white dark:bg-[#0f172a] border-l border-slate-200 dark:border-slate-800 p-6 z-50 no-print">
         <div className="flex items-center justify-between mb-8 cursor-pointer group" onClick={resetToLanding}>
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-2xl shadow-lg transition-all group-hover:scale-110 ${activeSection === 'gas' ? 'bg-blue-600 shadow-blue-100' : activeSection === 'fire' ? 'bg-rose-600 shadow-rose-100' : activeSection === 'plumbing' ? 'bg-cyan-600 shadow-cyan-100' : 'bg-amber-600 shadow-amber-100'}`}>
@@ -680,7 +974,7 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative bg-slate-50 dark:bg-[#070b13]">
         <div className={`h-full custom-scrollbar p-4 md:p-10 ${activeTab === 'contact' ? 'pb-10' : 'pb-28'} md:pb-10 overflow-y-auto`}>
           {ActiveComponent === PlumbingSystem ? (
             <PlumbingSystem activeTabId={activeTab} />
@@ -694,7 +988,7 @@ const App: React.FC = () => {
         {/* Mobile Bottom Navigation */}
         {activeTab !== 'contact' && (
           <nav 
-            className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 z-40 no-print"
+            className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 py-2 z-40 no-print"
             onTouchStart={handleInteractionStart}
             onTouchEnd={handleInteractionEnd}
             onMouseDown={handleInteractionStart}

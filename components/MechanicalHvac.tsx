@@ -961,30 +961,6 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                   })}
                 </div>
 
-                {/* Supervisor Identification form wrapper */}
-                <div className="bg-slate-50/60 rounded-3xl p-5 border border-slate-200/80 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-black text-slate-405 block mb-1">نام مهندس ناظر تاسیسات مکانیکی</label>
-                    <input 
-                      type="text" 
-                      value={testSupervisorName}
-                      onChange={(e) => setTestSupervisorName(e.target.value)}
-                      placeholder="جناب مهندس ..."
-                      className="w-full bg-white border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-755 outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-black text-slate-405 block mb-1">شماره پروانه نظارت ساختمان</label>
-                    <input 
-                      type="text" 
-                      value={testProjectCode}
-                      onChange={(e) => setTestProjectCode(e.target.value)}
-                      placeholder="شماره سریال نقشه نظام مهندسی"
-                      className="w-full bg-white border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-755 outline-none focus:border-amber-500 ltr"
-                    />
-                  </div>
-                </div>
-
                 {/* Render digital seal and printable signature output card when completed */}
                 {activeTest.steps.every(step => testCheckedItems[step.id]) ? (
                   <motion.div 
@@ -1013,11 +989,6 @@ export const MechanicalHvac: React.FC<MechanicalHvacProps> = ({ activeTabId }) =
                       <div className="text-[10px] font-mono tracking-widest font-black flex items-center gap-1 text-slate-500">
                         <span>EMERALD SEAL SECURITY • APPROVED</span>
                       </div>
-                      {testSupervisorName && (
-                        <p className="text-[11px] font-black text-slate-700 mt-1">
-                          تایید توسط: {testSupervisorName} (شماره پروانه: {testProjectCode || 'بدون پروانه درج شده'})
-                        </p>
-                      )}
                     </div>
                   </motion.div>
                 ) : (
