@@ -26,7 +26,8 @@ import {
   Share2,
   Star,
   Sun,
-  Moon
+  Moon,
+  Banknote
 } from 'lucide-react';
 import { PipeCalculator } from './components/PipeCalculator';
 import { Ventilation } from './components/Ventilation';
@@ -125,6 +126,7 @@ const App: React.FC = () => {
     { id: 'safety' as TabId, label: 'فواصل ایمنی', icon: ShieldCheck, component: ApplianceDistance },
     { id: 'store' as TabId, label: 'فروشگاه ملزومات', icon: StoreIcon, component: Store },
     { id: 'test' as TabId, label: 'تست استقامت', icon: FlaskConical, component: GasTest },
+    { id: 'price' as TabId, label: 'تعرفه خدمات', icon: Banknote, component: PriceList },
     { id: 'contact' as TabId, label: 'تماس با ما', icon: MessageSquare, component: ContactUs },
   ];
 
@@ -832,9 +834,9 @@ const App: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.4 }}
           transition={{ delay: 0.7 }}
-          className="mt-14 text-xs font-black text-slate-400 text-center"
+          className="mt-14 text-xs font-black text-slate-400 text-center max-w-md px-4 leading-relaxed"
         >
-          مقررات ملی ساختمان
+          منبع و مرجع مطابق مباحث ۱۴،۱۶، و ۱۷ مقررات ملی ساختمان و استاندارد ASHRAE
         </motion.div>
 
         {/* Global Toast Notification */}
