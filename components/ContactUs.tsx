@@ -37,7 +37,7 @@ export const ContactUs: React.FC = () => {
       </div>
 
       {/* Team & Contact Cards Container */}
-      <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4 md:px-0">
+      <div className="max-w-md mx-auto px-4 md:px-0">
           
           {/* Card 1: ربیع ناطقی */}
           <div className="bg-white rounded-3xl p-6 border border-slate-200/50 shadow-sm hover:shadow-md hover:border-orange-200/80 transition-all duration-300 flex flex-col justify-between text-right relative overflow-hidden group">
@@ -66,7 +66,7 @@ export const ContactUs: React.FC = () => {
                 <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                   <button 
                     onClick={copyPhone}
-                    className="p-1.5 bg-white hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center border border-slate-200/50"
+                    className="p-1.5 bg-white hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center border border-slate-200/50 cursor-pointer"
                     title="کپی شماره"
                   >
                     {copied ? (
@@ -88,80 +88,6 @@ export const ContactUs: React.FC = () => {
               <a 
                 href={`mailto:${email}`}
                 className="text-[10px] font-black text-orange-500 flex items-center gap-1 hover:gap-1.5 transition-all"
-              >
-                <span>ارسال ایمیل مستقیم</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-
-          {/* Card 2: فرید سپهریان آذر */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/50 shadow-sm hover:shadow-md hover:border-blue-200/80 transition-all duration-300 flex flex-col justify-between text-right relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-24 h-24 bg-blue-50/30 rounded-full -ml-12 -mt-12 blur-2xl opacity-80 group-hover:bg-blue-50/50 transition-colors"></div>
-
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 font-black">
-                  <User className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-black text-slate-800 text-lg">فرید سپهریان آذر</h4>
-              </div>
-
-              <div className="border-t border-dashed border-slate-100 pt-3 space-y-2.5">
-                <a 
-                  href="mailto:Farid.sep@gmail.com" 
-                  className="flex items-center gap-2 group/link justify-end text-slate-600 hover:text-blue-500 transition-colors"
-                >
-                  <span className="font-mono text-xs font-bold leading-none" dir="ltr">Farid.sep@gmail.com</span>
-                  <Mail className="w-4 h-4 text-slate-400 group-hover/link:text-blue-500" />
-                </a>
-              </div>
-            </div>
-
-            <div className="pt-4 flex justify-end">
-              <a 
-                href="mailto:Farid.sep@gmail.com"
-                className="text-[10px] font-black text-blue-500 flex items-center gap-1 hover:gap-1.5 transition-all"
-              >
-                <span>ارسال ایمیل مستقیم</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-
-          {/* Card 3: حامد ابراهیم نژاد */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/50 shadow-sm hover:shadow-md hover:border-violet-200/80 transition-all duration-300 flex flex-col justify-between text-right relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-24 h-24 bg-violet-50/30 rounded-full -ml-12 -mt-12 blur-2xl opacity-80 group-hover:bg-violet-50/50 transition-colors"></div>
-
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-11 h-11 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-500 font-black">
-                  <User className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-black text-slate-800 text-lg">حامد ابراهیم نژاد</h4>
-              </div>
-
-              <div className="border-t border-dashed border-slate-105 pt-3 space-y-2.5">
-                <a 
-                  href="mailto:En.ebrahimnezhad@gmail.com" 
-                  className="flex items-center gap-2 group/link justify-end text-slate-600 hover:text-violet-500 transition-colors"
-                >
-                  <span className="font-mono text-xs font-bold leading-none" dir="ltr">En.ebrahimnezhad@gmail.com</span>
-                  <Mail className="w-4 h-4 text-slate-400 group-hover/link:text-violet-500" />
-                </a>
-              </div>
-            </div>
-
-            <div className="pt-4 flex justify-end">
-              <a 
-                href="mailto:En.ebrahimnezhad@gmail.com"
-                className="text-[10px] font-black text-violet-500 flex items-center gap-1 hover:gap-1.5 transition-all"
               >
                 <span>ارسال ایمیل مستقیم</span>
                 <ExternalLink className="w-3 h-3" />
